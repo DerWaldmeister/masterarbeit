@@ -468,7 +468,10 @@ numberOfEpochs = 3
 learningRate = 0.001
 # paths
 relativePath = os.path.dirname(__file__)
-absolutePathProjects = relativePath + "/database/"
+# Path for PSPLIB J30
+# absolutePathProjects = relativePath + "/database/psplib J30"
+# Path for random RanGen data from Xialoei
+absolutePathProjects = relativePath + "/database/RG30_Newdata"
 absolutePathExcelOutput = relativePath + "/BenchmarkCNN.xlsx"
 # initialise variables
 numberOfActivities = None
