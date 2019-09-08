@@ -489,9 +489,9 @@ learningRate = 0.001
 # paths
 relativePath = os.path.dirname(__file__)
 # Path for PSPLIB J30
-# absolutePathProjects = relativePath + "/database/psplib J30"
+absolutePathProjects = relativePath + "/database/psplib J30"
 # Path for random RanGen data from Xialoei
-absolutePathProjects = relativePath + "/database/RG30_Newdata"
+# absolutePathProjects = relativePath + "/database/RG30_Newdata"
 absolutePathExcelOutput = relativePath + "/BenchmarkCNN2d.xlsx"
 # initialise variables
 numberOfActivities = None

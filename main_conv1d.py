@@ -468,6 +468,7 @@ numberOfEpochs = 3
 learningRate = 0.001
 # paths
 relativePath = os.path.dirname(__file__)
+print("relativePath:" + relativePath)
 # Path for PSPLIB J30
 # absolutePathProjects = relativePath + "/database/psplib J30"
 # Path for random RanGen data from Xialoei

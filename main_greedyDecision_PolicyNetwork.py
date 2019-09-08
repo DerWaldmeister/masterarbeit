@@ -458,7 +458,8 @@ numberOfEpochs = 3
 learningRate = 0.001
 # paths
 relativePath = os.path.dirname(__file__)
-absolutePathProjects = relativePath + "/database/"
+absolutePathProjects = relativePath + "/database/psplib_J30"
+print("absolutePathProjects: " + absolutePathProjects )
 absolutePathExcelOutput = relativePath + "/Benchmark2.xlsx"
 # other parameters
 np.set_printoptions(precision=4)    # print precision of numpy variables
@@ -474,6 +475,7 @@ actions = []
 
 # read all activity sequences from database
 absolutePathProjectsGlob = absolutePathProjects + "*.txt"
+print("absolutePathProjectsGlob: " + absolutePathProjectsGlob )
 files = sorted(glob.glob(absolutePathProjectsGlob))
 
 # divide all activity sequences in training and test set
@@ -541,7 +543,7 @@ for i in range(numberOfFiles):
             for IndexFollowingActivity in Activity.indexFollowingActivities:
                 currentActivitySequence.activities[IndexFollowingActivity].numberOfPreviousActivities += 1
     activitySequences.append(currentActivitySequence)
-
+print("number Of resources "+ str(numberOfResources))
 stateVectorLength = numberOfActivitiesInStateVector + numberOfActivitiesInStateVector * numberOfResources + numberOfResources
 
 # compute decisions: each decision corresponds to a start of an activity in the local reference system (more than one decision can be taken at once)
