@@ -317,8 +317,8 @@ def runSimulation(runSimulationInput):
 
         # increment the index for the simulation run at the end of the loop
         indexSimulationRun += 1
-        # if indexSimulationRun % 10 == 0:
-            # print("indexSimulationRun:" + str(step))
+        if indexSimulationRun % 100 == 0:
+            print("indexSimulationRun:" + str(indexSimulationRun))
 
 
     totalDurationMean = st.mean(totalDurations)
@@ -489,9 +489,7 @@ learningRate = 0.001
 # paths
 relativePath = os.path.dirname(__file__)
 # Path for PSPLIB J30
-absolutePathProjects = relativePath + "/database/psplib J30"
-# Path for random RanGen data from Xialoei
-# absolutePathProjects = relativePath + "/database/RG30_Newdata"
+absolutePathProjects = relativePath + "/database/psplib_J30/"
 absolutePathExcelOutput = relativePath + "/BenchmarkCNN2d.xlsx"
 # initialise variables
 numberOfActivities = None

@@ -458,7 +458,7 @@ numberOfEpochs = 3
 learningRate = 0.001
 # paths
 relativePath = os.path.dirname(__file__)
-absolutePathProjects = relativePath + "/database/psplib_J30"
+absolutePathProjects = relativePath + "/database/psplib_J30/"
 print("absolutePathProjects: " + absolutePathProjects )
 absolutePathExcelOutput = relativePath + "/Benchmark2.xlsx"
 # other parameters
