@@ -4,8 +4,9 @@ import glob
 import numpy as np
 import random
 import re
-from convnet_1d import createNeuralNetworkModel
 from env import runSimulation, runSimulation_input, activitySequence, activity
+from convnet_1d import create1dConvNetNeuralNetworkModel
+from convnet_2d import create2dConvNetNeuralNetworkModel
 import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
@@ -29,6 +30,9 @@ timeHorizon = 10
 # random generation parameters
 numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
+
+# neural network type
+neuralNetworkType = "2dimensional convnet"   # 1dimensional, 2dimensional, graph embedding
 
 # train parameters
 percentageOfFilesTest = 0.1
@@ -169,6 +173,8 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input.purpose = "generateData"
     currentRunSimulation_input.randomDecisionProbability = 1
     currentRunSimulation_input.policyType = None
+    # neuralNetworkType needs to be set because states get stored accordingly in states list (vectors vs. matrices)
+    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
     currentRunSimulation_input.decisionTool = None
     currentRunSimulation_input.numberOfResources = numberOfResources
     currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
@@ -205,21 +211,42 @@ for i in range(numberOfFilesTrain):
 
 ####  TRAIN MODEL USING TRAINING DATA  ####
 # look for existing model
-if importExistingNeuralNetworkModel:
-    print("check if a neural network model exists")
-    if neuralNetworkModelAlreadyExists:
-        print("import neural network model exists")
+print("Train neural network model")
+if neuralNetworkType == "1dimensional convnet":
+    if importExistingNeuralNetworkModel:
+        print("check if a neural network model exists")
+        if neuralNetworkModelAlreadyExists:
+            print("import neural network model exists")
 
+        else:
+            neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+            #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
     else:
-        neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-        # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actions[0]))
-else:
-    neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-    # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actions[0]))
+        neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+        #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_step=500,show_metric=True,batch_size=32,validation_set=0.2)
-# output = neuralNetworkModel.predict(states)
-# print(output)
+    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                           show_metric=True, run_id="trainNeuralNetworkModel")
+
+elif neuralNetworkType == "2dimensional convnet":
+    # Turn states list into tuples
+    states = np.asarray(states)
+    #print("states: " + str(states))
+    #print("states[0]: " + str(states[0]))
+    # Reshape states
+    states = states.reshape([-1, len(states[0]), len(states[0]), 1])
+    if importExistingNeuralNetworkModel:
+        neuralNetworkModelAlreadyExists = False
+        print("check if a neural network model exists")
+        if neuralNetworkModelAlreadyExists:
+            print("import neural network model exists")
+        else:
+            neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+    else:
+        neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+
+    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                           show_metric=True, run_id="trainNeuralNetworkModel")
 
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH TEST ACTIVITY SEQUENCES  ####
 print('######  RANDOM DECISION ON TEST ACTIVITY SEQUENCES  ######')
@@ -232,6 +259,7 @@ for i in range(numberOfFilesTest):
     currentRunSimulation_input.purpose = "testPolicy"
     currentRunSimulation_input.randomDecisionProbability = 1
     currentRunSimulation_input.policyType = None
+    currentRunSimulation_input.neuralNetworkType = None
     currentRunSimulation_input.decisionTool = None
     currentRunSimulation_input.numberOfResources = numberOfResources
     currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
@@ -269,6 +297,7 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input.purpose = "testPolicy"
     currentRunSimulation_input.randomDecisionProbability = 0
     currentRunSimulation_input.policyType = "neuralNetworkModel"
+    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
     currentRunSimulation_input.decisionTool = neuralNetworkModel
     currentRunSimulation_input.numberOfResources = numberOfResources
     currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
@@ -295,6 +324,7 @@ for i in range(numberOfFilesTest):
     currentRunSimulation_input.purpose = "testPolicy"
     currentRunSimulation_input.randomDecisionProbability = 0
     currentRunSimulation_input.policyType = "neuralNetworkModel"
+    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
     currentRunSimulation_input.decisionTool = neuralNetworkModel
     currentRunSimulation_input.numberOfResources = numberOfResources
     currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
