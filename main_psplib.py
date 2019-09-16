@@ -136,6 +136,7 @@ for i in range(numberOfFiles):
                 currentActivitySequence.activities[IndexFollowingActivity].numberOfPreviousActivities += 1
     activitySequences.append(currentActivitySequence)
 
+# So far no time horizon in the input vector (neither in psplib nor in RG30)
 #stateVectorLength = numberOfActivitiesInStateVector + numberOfActivitiesInStateVector * numberOfResources + numberOfResources + timeHorizon * numberOfResources
 stateVectorLength = numberOfActivitiesInStateVector + numberOfActivitiesInStateVector * numberOfResources + numberOfResources
 
