@@ -231,6 +231,8 @@ elif neuralNetworkType == "2dimensional convnet":
     neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
                            show_metric=True, run_id="trainNeuralNetworkModel")
 
+else:
+    print("No neural network")
 
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH TEST ACTIVITY SEQUENCES  ####
 print('######  RANDOM DECISION ON TEST ACTIVITY SEQUENCES  ######')
@@ -385,3 +387,4 @@ print("sumTotalDurationWithNeuralNetworkModelTest = " + str(sumTotalDurationWith
 t_end = time.time()
 t_computation = t_end - t_start
 print("t_computation = " + str(t_computation))
+print()

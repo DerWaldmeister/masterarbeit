@@ -385,7 +385,7 @@ sumTotalDurationWithNeuralNetworkModelTestRecord.append(sumTotalDurationWithNeur
 #sumTotalDurationWithShortestSumDurationTestRecord.append(sumTotalDurationWithShortestSumDurationTest)
 
 
-
+print("neuralNetworkType: " + neuralNetworkType)
 print("sumTotalDurationRandomTrain = " + str(sumTotalDurationRandomTrain))
 print("sumTotalDurationWithNeuralNetworkModelTrain = " + str(sumTotalDurationWithNeuralNetworkModelTrain))
 #print("sumTotalDurationWithCriticalResourceTrain = " + str(sumTotalDurationWithCriticalResourceTrain))
