@@ -300,6 +300,7 @@ def runSimulation(runSimulation_input):
             # 1.4 normalized state vector and matrix are created
             # distinguish between 1dimensional convnet and 2dimensional convnet (vector vs matrix)
             # conv1d = NOT 2dimensional and NOT None
+            #if neuralNetworkTyp == "1dimensional convnet":
             if neuralNetworkType != "2dimensional convnet" or neuralNetworkType == None:
                 currentState_readyToStartActivities = []
 
@@ -327,6 +328,7 @@ def runSimulation(runSimulation_input):
                             # 1.4.1 add future resourceUtilisation for active activities
 
             # conv2d = NOT 1dimensional and NOT None
+            # elif neuralNetworkType == "2dimensional convnet"
             elif neuralNetworkType != "1dimensional convnet" and neuralNetworkType != None:
                 currentState_readyToStartActivitiesMatrix = [[]]
                 if trivialDecision == False:
@@ -356,6 +358,8 @@ def runSimulation(runSimulation_input):
                 #else:
                     #currentState_readyToStartActivities = []
                     #currentState_readyToStartActivitiesMatrix = [[]]
+            else:
+                print("Fehler")
 
 
             # 1.5 Use the policy and the decision tool to define which tokens can begin the correspondent activity or remain idle
@@ -466,6 +470,8 @@ def runSimulation(runSimulation_input):
                     currentStateActionPair.state = currentState_readyToStartActivitiesMatrix
                     currentStateActionPair.action = currentAction
                     currentStateActionPairsOfRun.append(currentStateActionPair)
+                else:
+                    print("Error saving state action pair")
 
             ## STEP 2 ##
             # 2.1 find out when the next event (activity end) occurs

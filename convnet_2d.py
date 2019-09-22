@@ -36,8 +36,8 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir="log")
 
     return model
-'''
 
+'''
 #CONFIGURATION 2 - 1st own model
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 

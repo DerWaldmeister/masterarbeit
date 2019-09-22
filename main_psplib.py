@@ -34,13 +34,13 @@ numberOfSimulationRunsToTestPolicy = 1
 numberOfMainRun = 1
 
 # neural network type
-neuralNetworkType = "2dimensional convnet"   # 1dimensional, 2dimensional, graph embedding
+neuralNetworkType = "2dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, graph embedding
 
 # train parameters
 percentageOfFilesTest = 0.1
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 10 #walk entire samples
+numberOfEpochs = 50 #walk entire samples
 learningRate = 0.0005
 
 # paths
