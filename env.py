@@ -301,7 +301,7 @@ def runSimulation(runSimulation_input):
             # distinguish between 1dimensional convnet and 2dimensional convnet (vector vs matrix)
             # conv1d = NOT 2dimensional and NOT None
             #if neuralNetworkType != "2dimensional convnet" or neuralNetworkType == None:
-            if neuralNetworkType == "1dimensional convnet":
+            if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == None:
                 currentState_readyToStartActivities = []
 
                 if trivialDecision == False:
