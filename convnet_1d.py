@@ -14,17 +14,12 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = input_data(shape=[None, input_size], name='input')
     convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)
 
-    #convolutionalNetwork = conv_1d(convolutionalNetwork, 2, 1, activation='relu')
     convnet = conv_1d(convnet, 3, 2, activation='relu')
-    #convolutionalNetwork = max_pool_1d(convolutionalNetwork, 2)
     convnet = max_pool_1d(convnet, 3)
 
-    #convolutionalNetwork = conv_1d(convolutionalNetwork, 4, 1, activation='relu')
     convnet = conv_1d(convnet, 6, 2, activation='relu')
-    # convolutionalNetwork = max_pool_1d(convolutionalNetwork, 2)
     convnet = max_pool_1d(convnet, 3)
 
-    #convolutionalNetwork = fully_connected(convolutionalNetwork, 4 , activation='relu')
     convnet = fully_connected(convnet, 9, activation='relu')
     convnet = dropout(convnet, 0.8)
 

@@ -245,7 +245,7 @@ for i in range(numberOfFilesTest):
     currentRunSimulation_input.purpose = "testPolicy"
     currentRunSimulation_input.randomDecisionProbability = 1
     currentRunSimulation_input.policyType = None
-    currentRunSimulation_input.neuralNetworkType = None
+    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
     currentRunSimulation_input.decisionTool = None
     currentRunSimulation_input.numberOfResources = numberOfResources
     currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector

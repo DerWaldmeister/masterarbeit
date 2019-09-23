@@ -300,8 +300,8 @@ def runSimulation(runSimulation_input):
             # 1.4 normalized state vector and matrix are created
             # distinguish between 1dimensional convnet and 2dimensional convnet (vector vs matrix)
             # conv1d = NOT 2dimensional and NOT None
-            #if neuralNetworkTyp == "1dimensional convnet":
-            if neuralNetworkType != "2dimensional convnet" or neuralNetworkType == None:
+            #if neuralNetworkType != "2dimensional convnet" or neuralNetworkType == None:
+            if neuralNetworkType == "1dimensional convnet":
                 currentState_readyToStartActivities = []
 
                 if trivialDecision == False:
@@ -328,8 +328,8 @@ def runSimulation(runSimulation_input):
                             # 1.4.1 add future resourceUtilisation for active activities
 
             # conv2d = NOT 1dimensional and NOT None
-            # elif neuralNetworkType == "2dimensional convnet"
-            elif neuralNetworkType != "1dimensional convnet" and neuralNetworkType != None:
+            #elif neuralNetworkType != "1dimensional convnet" and neuralNetworkType != None:
+            elif neuralNetworkType == "2dimensional convnet":
                 currentState_readyToStartActivitiesMatrix = [[]]
                 if trivialDecision == False:
                     currentState_readyToStartActivities = np.zeros((1, stateVectorLength))
@@ -384,9 +384,13 @@ def runSimulation(runSimulation_input):
                     currentState_readyToStartActivitiesMatrix = currentState_readyToStartActivitiesMatrix.reshape(
                         [-1, stateVectorLength, stateVectorLength, 1])
                     outputNeuralNetworkModel = decisionTool.predict(currentState_readyToStartActivitiesMatrix)
+                    priorityValues = outputNeuralNetworkModel[0]
+                    '''
+                    Was hat dieser Code-Ausschnitt beweirkt?
                     priorityValues = np.zeros(numberOfActivitiesInStateVector)
                     for i in range(len(outputNeuralNetworkModel)):
                         priorityValues[i] = outputNeuralNetworkModel[0, i]
+                    '''
 
                 elif policyType == "most critical resource":
                     priorityValues = [1, 0.8, 0.6, 0.4, 0.2, 0]
