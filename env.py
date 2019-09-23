@@ -299,7 +299,6 @@ def runSimulation(runSimulation_input):
 
             # 1.4 normalized state vector and matrix are created
             # distinguish between 1dimensional convnet and 2dimensional convnet (vector vs matrix)
-            # conv1d = NOT 2dimensional and NOT None
             #if neuralNetworkType != "2dimensional convnet" or neuralNetworkType == None:
             if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == None:
                 currentState_readyToStartActivities = []
@@ -327,7 +326,7 @@ def runSimulation(runSimulation_input):
                             # Xiaolei:
                             # 1.4.1 add future resourceUtilisation for active activities
 
-            # conv2d = NOT 1dimensional and NOT None
+            # neuralNetworkType = "2dimensional convnet"
             #elif neuralNetworkType != "1dimensional convnet" and neuralNetworkType != None:
             elif neuralNetworkType == "2dimensional convnet":
                 currentState_readyToStartActivitiesMatrix = [[]]
