@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 import random
 import re
+from randomize_train_validate_test_indices import randomizeTrainValidateTestIndeces
 from env import runSimulation, runSimulation_input, activitySequence, activity
 from convnet_1d import create1dConvNetNeuralNetworkModel
 from convnet_2d import create2dConvNetNeuralNetworkModel
@@ -37,7 +38,8 @@ numberOfMainRun = 1
 neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, graph embedding
 
 # train parameters
-percentageOfFilesTest = 0.1
+#percentageOfFilesTest = 0.1
+generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 50 #walk entire samples
@@ -75,7 +77,16 @@ absolutePathProjectsGlob = absolutePathProjects + "*.txt"
 files = sorted(glob.glob(absolutePathProjectsGlob))
 
 # divide all activity sequences in training and test set
-numberOfFiles = len(files)
+numberOfFiles = len(files)  # 480
+#print("numberOfFiles:" + str(numberOfFiles))
+
+indexFilesTrain, indexFilesValidate, indexFilesTest = randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidateSets)
+
+numberOfFilesTrain = len(indexFilesTrain)
+numberOfFilesValidate = len(indexFilesValidate)
+numberOfFilesTest = len(indexFilesTest)
+
+'''
 numberOfFilesTest = round(numberOfFiles * percentageOfFilesTest)
 numberOfFilesTrain = numberOfFiles - numberOfFilesTest
 indexFiles = list(range(0, numberOfFiles))
@@ -89,6 +100,7 @@ for i in range(numberOfFilesTest):
     indexFilesTest.append(indexFiles[randomIndex])
     del indexFiles[randomIndex]#delete
 indexFilesTrain = indexFiles
+'''
 
 # organize the read activity sequences in classes
 for i in range(numberOfFiles):
