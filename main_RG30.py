@@ -10,12 +10,16 @@ from convnet_2d import create2dConvNetNeuralNetworkModel
 import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
+from randomize_train_validate_test_indices import randomizeTrainValidateTestIndeces
 
 t_start = time.time()
 
 # user defined parameters
 # problem parameters
 timeDistribution = "deterministic"    # deterministic, exponential, uniform_1, uniform_2, ...
+
+# file name flag
+fileNameLabel = 'main_RG30'
 
 # CPU parameters
 numberOfCpuProcessesToGenerateData = 16   # paoloPC has 16 cores
@@ -35,7 +39,7 @@ numberOfSimulationRunsToTestPolicy = 1
 neuralNetworkType = "1dimensional convnet"   # 1dimensional, 2dimensional, graph embedding
 
 # train parameters
-percentageOfFilesTest = 0.1
+generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 50 #walk entire samples
@@ -73,12 +77,19 @@ files = sorted(glob.glob(absolutePathProjectsGlob))
 
 # divide all activity sequences in training and test set
 numberOfFiles = len(files)
+
+# call randomizeTrainValidateTestIndeces to generate a new train validate test split or use an already created split
+indexFilesTrain, indexFilesValidate, indexFilesTest = randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidateSets , fileNameLabel)
+
+numberOfFilesTrain = len(indexFilesTrain)
+numberOfFilesValidate = len(indexFilesValidate)
+numberOfFilesTest = len(indexFilesTest)
+'''
 numberOfFilesTest = round(numberOfFiles * percentageOfFilesTest)
 numberOfFilesTrain = numberOfFiles - numberOfFilesTest
 indexFiles = list(range(0, numberOfFiles))
 indexFilesTrain = []
 indexFilesTest = []
-
 
 # choose the first element of every set to test
 for i in range(numberOfFilesTest):
@@ -87,6 +98,7 @@ for i in range(numberOfFilesTest):
     indexFilesTest.append(indexFiles[randomIndex])
     del indexFiles[randomIndex]#delete
 indexFilesTrain = indexFiles
+'''
 
 # organize the read activity sequences in classes
 for i in range(numberOfFiles):

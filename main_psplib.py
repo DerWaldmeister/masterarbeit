@@ -18,7 +18,10 @@ t_start = time.time()
 
 # user defined parameters
 # problem parameters
-timeDistribution = "deterministic"    # deterministic, exponential, uniform_1, uniform_2, ...
+timeDistribution = "deterministic"    # deterministic, exponential, uniform_1, uniform_2, ...#
+
+# file name flag
+fileNameLabel = 'main_psplib'
 
 # CPU parameters
 numberOfCpuProcessesToGenerateData = 16   # paoloPC has 16 cores
@@ -38,7 +41,6 @@ numberOfMainRun = 1
 neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, graph embedding
 
 # train parameters
-#percentageOfFilesTest = 0.1
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
@@ -80,7 +82,7 @@ files = sorted(glob.glob(absolutePathProjectsGlob))
 numberOfFiles = len(files)  # 480
 #print("numberOfFiles:" + str(numberOfFiles))
 
-indexFilesTrain, indexFilesValidate, indexFilesTest = randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidateSets)
+indexFilesTrain, indexFilesValidate, indexFilesTest = randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidateSets , fileNameLabel)
 
 numberOfFilesTrain = len(indexFilesTrain)
 numberOfFilesValidate = len(indexFilesValidate)
