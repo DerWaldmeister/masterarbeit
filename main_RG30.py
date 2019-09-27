@@ -570,4 +570,79 @@ t_computation = t_end - t_start
 print("t_computation = " + str(t_computation))
 
 
+#write ouput to excel
+wb = Workbook()
+ws = wb.create_sheet('Durations_psplib',0)
 
+alignCenter = Alignment(horizontal='center')
+
+ws['A1'] = 'Durations'
+ws['B1'] = 'Computation time'
+ws['C1'].value = t_computation
+ws.merge_cells('A2:E2')
+ws.merge_cells('F2:J2')
+ws['A2'] = 'durations on train set'
+ws['A2'].alignment = alignCenter
+ws['F2'] = 'durations on test set'
+ws['F2'].alignment = alignCenter
+
+ws['A3'] = 'Random'
+ws['B3'] = 'NeuralNetworkModel'
+ws['C3'] = 'CriticalResource'
+ws['D3'] = 'ShortestProcessing'
+ws['E3'] = 'ShortestSumDuration'
+ws['F3'] = 'Random'
+ws['G3'] = 'NeuralNetworkModel'
+ws['H3'] = 'CriticalResource'
+ws['I3'] = 'ShortestProcessing'
+ws['J3'] = 'ShortestSumDuration'
+
+ws['A4'].value = sumTotalDurationRandomTrain
+ws['B4'].value = sumTotalDurationWithNeuralNetworkModelTrain
+ws['C4'].value = sumTotalDurationWithCriticalResourceTrain
+ws['D4'].value = sumTotalDurationWithShortestProcessingTrain
+ws['E4'].value = sumTotalDurationWithShortestSumDurationTrain
+ws['F4'].value = sumTotalDurationRandomTest
+ws['G4'].value = sumTotalDurationWithNeuralNetworkModelTest
+ws['H4'].value = sumTotalDurationWithCriticalResourceTest
+ws['I4'].value = sumTotalDurationWithShortestProcessingTest
+ws['J4'].value = sumTotalDurationWithShortestSumDurationTest
+
+
+
+
+ws.column_dimensions['A'].width = 10.0
+ws.column_dimensions['B'].width = 18.0
+ws.column_dimensions['C'].width = 14.0
+ws.column_dimensions['D'].width = 18.0
+ws.column_dimensions['E'].width = 19.0
+ws.column_dimensions['F'].width = 10.0
+ws.column_dimensions['G'].width = 18.0
+ws.column_dimensions['H'].width = 14.0
+ws.column_dimensions['I'].width = 18.0
+ws.column_dimensions['J'].width = 19.0
+
+ws['A3'].alignment = alignCenter
+ws['B3'].alignment = alignCenter
+ws['C3'].alignment = alignCenter
+ws['D3'].alignment = alignCenter
+ws['E3'].alignment = alignCenter
+ws['F3'].alignment = alignCenter
+ws['G3'].alignment = alignCenter
+ws['H3'].alignment = alignCenter
+ws['I3'].alignment = alignCenter
+ws['J3'].alignment = alignCenter
+
+ws['A4'].alignment = alignCenter
+ws['B4'].alignment = alignCenter
+ws['C4'].alignment = alignCenter
+ws['D4'].alignment = alignCenter
+ws['E4'].alignment = alignCenter
+ws['F4'].alignment = alignCenter
+ws['G4'].alignment = alignCenter
+ws['H4'].alignment = alignCenter
+ws['I4'].alignment = alignCenter
+ws['J4'].alignment = alignCenter
+
+
+wb.save(relativePath + "/durations_rg30.xlsx")
