@@ -1,8 +1,10 @@
 import random
 import pickle
 
-
+# a function to assign the topology files to train, validate and test set for both J30 and RG30 datasets
+# depending on generateNewTrainTestValidateSets a new random split can be made or the existing split will be kept
 def randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidateSets, fileNameLabel):
+    # split percentage parameters
     percentageOfFilesTest = 0.2
     percentageOfFilesValidate = 0.2
 
@@ -16,7 +18,6 @@ def randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidat
         if generateNewTrainTestValidateSets:
             indexFiles = list(range(0, numberOfFiles))
 
-            # indexFilesTrain = []
             indexFilesTest = []
             indexFilesValidate = []
 
@@ -24,9 +25,11 @@ def randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidat
             numberOfFilesValidate = round(numberOfFiles * percentageOfFilesValidate)  # 96
             # numberOfFilesTrain = numberOfFiles - numberOfFilesTest - numberOfFilesValidate # 288
 
+            # create randomIndex number and assign this index number to test set
             for i in range(numberOfFilesTest):
                 randomIndexTest = random.randrange(0, len(indexFiles))
                 indexFilesTest.append(indexFiles[randomIndexTest])
+                # delete the just created index number from index files
                 del indexFiles[randomIndexTest]
 
             for i in range(numberOfFilesValidate):
@@ -34,6 +37,7 @@ def randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidat
                 indexFilesValidate.append(indexFiles[randomIndexValidate])
                 del indexFiles[randomIndexValidate]
 
+            # all the remain index numbers are the train files
             indexFilesTrain = indexFiles
 
             # store indexLists in pickle files:
@@ -43,11 +47,9 @@ def randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidat
                 pickle.dump(indexFilesTrain, fi)
 
             with open(indexFilesValidatePickleFile, 'wb') as fi:
-                # dump data in pickle file
                 pickle.dump(indexFilesValidate, fi)
 
             with open(indexFilesTestPickleFile, 'wb') as fi:
-                # dump data in pickle file
                 pickle.dump(indexFilesTest, fi)
 
             # Open pickle files so they can be returned
@@ -58,6 +60,7 @@ def randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidat
             with open(indexFilesTestPickleFile, 'rb') as fi:
                 indexFilesTest = pickle.load(fi)
 
+        # if no new split should be generated:
         # just return the already existing train validate test sets from the pickle files
         else:
 
@@ -116,15 +119,12 @@ def randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidat
             # store indexLists in pickle files:
             # open a pickle file
             with open(indexFilesTrainPickleFile, 'wb') as fi:
-                # dump data in pickle file
                 pickle.dump(indexFilesTrain, fi)
 
             with open(indexFilesValidatePickleFile, 'wb') as fi:
-                # dump data in pickle file
                 pickle.dump(indexFilesValidate, fi)
 
             with open(indexFilesTestPickleFile, 'wb') as fi:
-                # dump data in pickle file
                 pickle.dump(indexFilesTest, fi)
 
             # Open pickle files so they can be returned
