@@ -11,8 +11,8 @@ from tflearn.layers.estimator import regression
     # TODO: Check learning rate
     # TODO: Check flatten
 
-# CONFIGURATION 1  - sentdex tutorial inspired
-
+# CONFIGURATION X  - sentdex tutorial inspired
+'''
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     convnet = input_data(shape=[None, input_size, input_size,1], name='input')
@@ -38,7 +38,8 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     return model
 
 '''
-#CONFIGURATION 2 - 1st own model
+
+#CONFIGURATION 1 - 1st own model - standard configuration
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     convnet = input_data(shape=[None, input_size, input_size,1], name='input')
@@ -48,16 +49,16 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = conv_2d(convnet, nb_filter=10, filter_size=2, strides=1, padding='same', activation='relu')
     convnet = max_pool_2d(convnet, kernel_size=2, strides=2, padding='valid')
 
-    #convnet = conv_2d(convnet, nb_filter=20, filter_size=5, strides=1, padding='valid', activation='relu')
-    #convnet = max_pool_2d(convnet, kernel_size=2, strides=2, padding='valid')
+    convnet = conv_2d(convnet, nb_filter=20, filter_size=5, strides=1, padding='valid', activation='relu')
+    convnet = max_pool_2d(convnet, kernel_size=2, strides=2, padding='valid')
 
     convnet = flatten(convnet)
 
     convnet = fully_connected(convnet, n_units=100, weights_init='truncated_normal', activation='relu')
-    #convnet = dropout(convnet, 0.8)
+    convnet = dropout(convnet, 0.8)
 
-    #convnet = fully_connected(convnet, n_units=180, weights_init='truncated_normal', activation='relu')
-    #convnet = dropout(convnet, 0.8)
+    convnet = fully_connected(convnet, n_units=180, weights_init='truncated_normal', activation='relu')
+    convnet = dropout(convnet, 0.8)
 
     convnet = fully_connected(convnet, n_units=output_size, activation='softmax')
     convnet = regression(convnet, optimizer='adam', learning_rate=learningRate, loss='categorical_crossentropy', name='targets')
@@ -65,4 +66,4 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir='log')
 
     return model
-'''
+
