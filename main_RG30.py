@@ -43,7 +43,7 @@ generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 50 #walk entire samples
-learningRate = 0.0005
+learningRate = 0.0008
 
 # paths
 relativePath = os.path.dirname(__file__)

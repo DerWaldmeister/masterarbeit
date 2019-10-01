@@ -1,9 +1,9 @@
 import tflearn
 from tflearn.layers.conv import conv_1d, max_pool_1d
-from tflearn.layers.core import input_data, dropout, fully_connected
+from tflearn.layers.core import input_data, dropout, fully_connected, flatten
 from tflearn.layers.estimator import regression
 
-
+'''
 # TODO: Define/tune the layers
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     # TODO: Check padding
@@ -14,8 +14,8 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = input_data(shape=[None, input_size], name='input')
     convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)
 
-    convnet = conv_1d(convnet, 3, 2, activation='relu')
-    convnet = max_pool_1d(convnet, 3)
+    convnet = conv_1d(convnet, nb_filter=10, filter_size=10, strides=1, padding='same', activation='relu')
+    convnet = max_pool_1d(convnet, kernel_size=3, strides=2, padding='valid')
 
     convnet = conv_1d(convnet, 6, 2, activation='relu')
     convnet = max_pool_1d(convnet, 3)
@@ -28,5 +28,34 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
                          name='targets')
 
     model = tflearn.DNN(convnet, tensorboard_dir="log")
+
+    return model
+'''
+
+#Configuration 1
+def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
+
+    convnet = input_data(shape=[None, input_size], name='input')
+    convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)
+
+    convnet = conv_1d(convnet, nb_filter=10, filter_size=5, strides=1, padding='same', activation='relu')
+    convnet = max_pool_1d(convnet, kernel_size=3, strides=1, padding='valid')
+
+    convnet = conv_1d(convnet, nb_filter=20, filter_size=3, strides=1, padding='valid', activation='relu')
+    convnet = max_pool_1d(convnet, kernel_size=3, strides=1, padding='valid')
+
+    convnet = flatten(convnet)
+
+    convnet = fully_connected(convnet, n_units=280, weights_init='truncated_normal', activation='relu')
+    convnet = dropout(convnet, 0.8)
+
+    convnet = fully_connected(convnet, n_units=140, weights_init='truncated_normal', activation='relu')
+    convnet = dropout(convnet, 0.8)
+
+    convnet = fully_connected(convnet, n_units=output_size, activation='softmax')
+    convnet = regression(convnet, optimizer='adam', learning_rate=learningRate, loss='categorical_crossentropy',
+                         name='targets')
+
+    model = tflearn.DNN(convnet, tensorboard_dir='log')
 
     return model
