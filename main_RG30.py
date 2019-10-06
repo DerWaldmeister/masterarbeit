@@ -36,14 +36,14 @@ numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "2dimensional convnet"   # 1dimensional, 2dimensional, graph embedding
+neuralNetworkType = "2dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, graph embedding
 
 # train parameters
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 50 #walk entire samples
-learningRate = 0.0008
+learningRate = 0.1
 
 # paths
 relativePath = os.path.dirname(__file__)
