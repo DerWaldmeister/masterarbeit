@@ -36,9 +36,9 @@ numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "2dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, graph embedding
+neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, graph embedding
 
-# train parameters
+# train parameter
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
@@ -574,11 +574,11 @@ print("sumTotalDurationWithNeuralNetworkModelTrain = " + str(sumTotalDurationWit
 print("sumTotalDurationWithCriticalResourceTrain = " + str(sumTotalDurationWithCriticalResourceTrain))
 print("sumTotalDurationWithShortestProcessingTrain = " + str(sumTotalDurationWithShortestProcessingTrain))
 print("sumTotalDurationWithShortestSumDurationTrain = " + str(sumTotalDurationWithShortestSumDurationTrain))
-print("sumTotalDurationRandomTest = " + str(sumTotalDurationRandomValidate))
-print("sumTotalDurationWithNeuralNetworkModelTest = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
-print("sumTotalDurationWithCriticalResourceTest = " + str(sumTotalDurationWithCriticalResourceValidate))
-print("sumTotalDurationWithShortestProcessingTest = " + str(sumTotalDurationWithShortestProcessingValidate))
-print("sumTotalDurationWithShortestSumDurationTest = " + str(sumTotalDurationWithShortestSumDurationValidate))
+print("sumTotalDurationRandomValidate = " + str(sumTotalDurationRandomValidate))
+print("sumTotalDurationWithNeuralNetworkModelValidate = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
+print("sumTotalDurationWithCriticalResourceValidate = " + str(sumTotalDurationWithCriticalResourceValidate))
+print("sumTotalDurationWithShortestProcessingValidate = " + str(sumTotalDurationWithShortestProcessingValidate))
+print("sumTotalDurationWithShortestSumDurationValidate = " + str(sumTotalDurationWithShortestSumDurationValidate))
 
 
 # compute computation time

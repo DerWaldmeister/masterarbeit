@@ -44,7 +44,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     convnet = input_data(shape=[None, input_size, input_size,1], name='input')
 
-    tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.5)
+    #tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.5)
 
     convnet = conv_2d(convnet, nb_filter=10, filter_size=5, strides=1, padding='same', activation='relu')
     convnet = max_pool_2d(convnet, kernel_size=2, strides=1, padding='valid')
@@ -70,13 +70,12 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
 
 '''
-#CONFIGURATION 2 
-#TODO finish from excel file
+#CONFIGURATION 2
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     convnet = input_data(shape=[None, input_size, input_size,1], name='input')
 
-    tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.5)
+    #tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.7)
 
     convnet = conv_2d(convnet, nb_filter=10, filter_size=7, strides=1, padding='same', activation='relu')
     convnet = max_pool_2d(convnet, kernel_size=2, strides=1, padding='valid')
