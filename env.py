@@ -57,6 +57,7 @@ class stateActionPair:
     def __init__(self):
         self.state = None
         self.action = None
+        self.futureResourceUtilisationMatrix = None
 
 class runSimulation_input:
     def __init__(self):
@@ -228,6 +229,7 @@ def runSimulation(runSimulation_input):
             # Xiaolei: policy types "shortest processing time" and "shortest sumDuration including successor"
 
             else:
+                # code for this policy type from: https://github.com/leiiiiii/RCPSP/blob/master/Env.py
                 if policyType == "shortest processing time":
                     # find the shortest duration activity to start
                     resourceConversionVector = list(range(0, numberOfResources))  # resource dosen't matter
@@ -241,6 +243,7 @@ def runSimulation(runSimulation_input):
                     indexActivitiesGlobal_reordered = [x for _, x in sorted(zip(durationForReadyToStartActivities, indexActivitiesGlobal), reverse=False)]
                     activityConversionVector = indexActivitiesGlobal_reordered
 
+                # code for this policy type from: https://github.com/leiiiiii/RCPSP/blob/master/Env.py
                 elif policyType == "shortest sumDuration including successor":
                     # find the shortest sum duration including successor to start
                     resourceConversionVector = list(range(0, numberOfResources))  # resource dosen't matter
@@ -356,7 +359,7 @@ def runSimulation(runSimulation_input):
                     print("Fehler")
 
                 # 1.4.1 add future resourceUtilisation for active activities
-                # the following code was provied by https://github.com/leiiiiii/RCPSP/blob/master/Env.py
+                # the code for future resourceUtilisation was provied by https://github.com/leiiiiii/RCPSP/blob/master/Env.py
                 indexReadyToActiveActivities = []
                 # indexAlreadyStartedActivities=[]
                 # for i in range(numberOfActivities):
@@ -572,6 +575,7 @@ def runSimulation(runSimulation_input):
 
                     currentStateActionPair.state = currentState_readyToStartActivities
                     currentStateActionPair.action = currentAction
+                    currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
 
                     currentStateActionPairsOfRun.append(currentStateActionPair)
                     # currentStateActionPossibilityPairsOfRun.append(currentStateActionPossibilityPair)
@@ -580,6 +584,8 @@ def runSimulation(runSimulation_input):
                     currentStateActionPair = stateActionPair()
                     currentStateActionPair.state = currentState_readyToStartActivitiesMatrix
                     currentStateActionPair.action = currentAction
+                    currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
+
                     currentStateActionPairsOfRun.append(currentStateActionPair)
                 else:
                     print("Error saving state action pair")

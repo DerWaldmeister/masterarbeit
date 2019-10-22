@@ -36,6 +36,7 @@ def createCombinedConvNetNeuralNetworkModelForFutureResourceUtilisation(input_si
     # merging the outputs of both convolutional nets
     mergedOutput = merge(convnetResourceUtilisationOutput, convnetCurrentStateOutput, axis=0) # axis=0 is concatenation
 
+    # fully connected layers
     neuralNet = fully_connected(mergedOutput, n_units=1800, weights_init='truncated_normal', activation='relu')
     neuralNet = dropout(neuralNet, 0.8)
 
