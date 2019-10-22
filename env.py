@@ -304,7 +304,7 @@ def runSimulation(runSimulation_input):
             # NEW: trivial decision check before neural network type check
             if trivialDecision == False:
                 # distinguish between 1dimensional convnet and 2dimensional convnet (vector vs matrix)
-                if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == None:
+                if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == None:
                     currentState_readyToStartActivities = []
 
                     currentState_readyToStartActivities = np.zeros([stateVectorLength])
@@ -326,7 +326,7 @@ def runSimulation(runSimulation_input):
                         currentActivitySequence.totalResources[resourceConversionVector[j]]
 
                 # neuralNetworkType = "2dimensional convnet"
-                elif neuralNetworkType == "2dimensional convnet":
+                elif neuralNetworkType == "2dimensional convnet" or neuralNetworkType == "2dimensional combined convnet":
                     currentState_readyToStartActivitiesMatrix = [[]]
                     if trivialDecision == False:
                         currentState_readyToStartActivities = np.zeros((1, stateVectorLength))
@@ -356,7 +356,7 @@ def runSimulation(runSimulation_input):
                         #currentState_readyToStartActivities = []
                         #currentState_readyToStartActivitiesMatrix = [[]]
                 else:
-                    print("Fehler")
+                    print("Error creating state vector / state")
 
                 # 1.4.1 add future resourceUtilisation for active activities
                 # the code for future resourceUtilisation was provied by https://github.com/leiiiiii/RCPSP/blob/master/Env.py
@@ -502,6 +502,16 @@ def runSimulation(runSimulation_input):
                     outputNeuralNetworkModel = decisionTool.predict(currentState_readyToStartActivitiesMatrix)
                     priorityValues = outputNeuralNetworkModel[0]
 
+                elif policyType == "neuralNetworkModel" and neuralNetworkType == "1dimensional combined convnet":
+                    placeholder = 2
+
+                elif policyType == "neuralNetworkModel" and neuralNetworkType == "2dimensional combined convnet":
+                    # Reshape the currentState_readyToStartActivitiesMatrix so that it fits into input shape of the neural network
+                    currentState_readyToStartActivitiesMatrix = currentState_readyToStartActivitiesMatrix.reshape(
+                        [-1, stateVectorLength, stateVectorLength, 1])
+                    outputNeuralNetworkModel = decisionTool.predict(currentState_readyToStartActivitiesMatrix)
+                    priorityValues = outputNeuralNetworkModel[0]
+
                 elif policyType == "most critical resource":
                     priorityValues = [1, 0.8, 0.6, 0.4, 0.2, 0]
 
@@ -577,6 +587,9 @@ def runSimulation(runSimulation_input):
                     currentStateActionPair.action = currentAction
                     currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
 
+                    #print("len(currentStateActionPair.futureResourceUtilisationMatrix) is number of rows:" + str(len(currentStateActionPair.futureResourceUtilisationMatrix)))
+                    #print("len(currentStateActionPair.futureResourceUtilisationMatrix[0]) is number of columns:" + str(len(currentStateActionPair.futureResourceUtilisationMatrix[0])))
+
                     currentStateActionPairsOfRun.append(currentStateActionPair)
                     # currentStateActionPossibilityPairsOfRun.append(currentStateActionPossibilityPair)
 
@@ -587,6 +600,18 @@ def runSimulation(runSimulation_input):
                     currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
 
                     currentStateActionPairsOfRun.append(currentStateActionPair)
+
+                elif neuralNetworkType == "1dimensional combined convnet":
+                    placeholder = 2
+
+                elif neuralNetworkType == "2dimensional combined convnet":
+                    currentStateActionPair = stateActionPair()
+                    currentStateActionPair.state = currentState_readyToStartActivitiesMatrix
+                    currentStateActionPair.action = currentAction
+                    currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
+
+                    currentStateActionPairsOfRun.append(currentStateActionPair)
+
                 else:
                     print("Error saving state action pair")
 
