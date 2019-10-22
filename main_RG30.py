@@ -7,6 +7,7 @@ import re
 from env import runSimulation, runSimulation_input, activitySequence, activity
 from convnet_1d import create1dConvNetNeuralNetworkModel
 from convnet_2d import create2dConvNetNeuralNetworkModel
+from convnet_for_futureResourceUtilisation import createCombinedConvNetNeuralNetworkModelForFutureResourceUtilisation
 import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
@@ -37,6 +38,8 @@ numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
 neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, graph embedding
+# use future resource utilisation or not
+useFutureResourceUtilisation = False
 
 # train parameter
 generateNewTrainTestValidateSets = False
@@ -228,22 +231,42 @@ for i in range(numberOfFilesTrain):
 
 ####  TRAIN MODEL USING TRAINING DATA  ####
 # look for existing model
+#TODO: implement the application of  convnet_for_futureResourceUtilisation
 print("Train neural network model")
 if neuralNetworkType == "1dimensional convnet":
-    if importExistingNeuralNetworkModel:
-        print("check if a neural network model exists")
-        if neuralNetworkModelAlreadyExists:
-            print("import neural network model exists")
+    # when future resource utilisation should be used, use the combined convnet
+    if useFutureResourceUtilisation:
+        if importExistingNeuralNetworkModel:
+            print("check if a neural network model exists")
+            if neuralNetworkModelAlreadyExists:
+                print("import neural network model exists")
 
+            else:
+                #neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+                neuralNetworkModel = createCombinedConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]), len(actions[0]), learningRate, )
         else:
             neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-            #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
-    else:
-        neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-        #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+        neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                               show_metric=True, run_id="trainNeuralNetworkModel")
+
+    # if no future resource utilisation is used, simply use 2d convolutional neural net
+    elif useFutureResourceUtilisation == False:
+        if importExistingNeuralNetworkModel:
+            print("check if a neural network model exists")
+            if neuralNetworkModelAlreadyExists:
+                print("import neural network model exists")
+
+            else:
+                neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+                # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+        else:
+            neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+            # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+
+        neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                               show_metric=True, run_id="trainNeuralNetworkModel")
+
 
 elif neuralNetworkType == "2dimensional convnet":
     # Turn states list into tuples
@@ -252,18 +275,36 @@ elif neuralNetworkType == "2dimensional convnet":
     #print("states[0]: " + str(states[0]))
     # Reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
-    if importExistingNeuralNetworkModel:
-        neuralNetworkModelAlreadyExists = False
-        print("check if a neural network model exists")
-        if neuralNetworkModelAlreadyExists:
-            print("import neural network model exists")
+    # when future resource utilisation should be used, use the combined convnet
+    if useFutureResourceUtilisation:
+        if importExistingNeuralNetworkModel:
+            neuralNetworkModelAlreadyExists = False
+            print("check if a neural network model exists")
+            if neuralNetworkModelAlreadyExists:
+                print("import neural network model exists")
+            else:
+                neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
         else:
             neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-    else:
-        neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+        neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                               show_metric=True, run_id="trainNeuralNetworkModel")
+
+    # if no future resource utilisation is used, simply use 2d convolutional neural net
+    elif useFutureResourceUtilisation == False:
+        if importExistingNeuralNetworkModel:
+            neuralNetworkModelAlreadyExists = False
+            print("check if a neural network model exists")
+            if neuralNetworkModelAlreadyExists:
+                print("import neural network model exists")
+            else:
+                neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+        else:
+            neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
+
+        neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                               show_metric=True, run_id="trainNeuralNetworkModel")
+
 
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATION ACTIVITY SEQUENCES  ####
 print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')

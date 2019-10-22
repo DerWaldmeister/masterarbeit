@@ -354,7 +354,7 @@ def runSimulation(runSimulation_input):
                         #currentState_readyToStartActivitiesMatrix = [[]]
                 else:
                     print("Fehler")
-                ''' 
+
                 # 1.4.1 add future resourceUtilisation for active activities
                 # the following code was provied by https://github.com/leiiiiii/RCPSP/blob/master/Env.py
                 indexReadyToActiveActivities = []
@@ -462,7 +462,9 @@ def runSimulation(runSimulation_input):
     
                 currentState_futureResourceUtilisation = currentState_futureResourceUtilisation[
                     resourceConversionVector]
-    
+                #print("currentState_futureResourceUtilisation:" + str(currentState_futureResourceUtilisation))
+
+                '''
                 currentStateFuturnResourceUtilisation = currentState_futureResourceUtilisation.flatten()
                 
                 
@@ -471,6 +473,7 @@ def runSimulation(runSimulation_input):
                         numberOfActivitiesInStateVector + numberOfActivitiesInStateVector * numberOfResources + numberOfResources + i] = \
                         currentStateFuturnResourceUtilisation[i]
                 '''
+
 
             # 1.5 Use the policy and the decision tool to define which tokens can begin the correspondent activity or remain idle
             randomDecisionAtThisStep = (random.random() < randomDecisionProbability)

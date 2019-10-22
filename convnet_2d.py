@@ -4,13 +4,6 @@ from tflearn.layers.core import input_data, dropout, fully_connected, flatten
 from tflearn.layers.estimator import regression
 
 
-# TODO: Define/tune the layers
-    # TODO: Check padding
-    # TODO: Check regularization
-    # TODO: Check activation function
-    # TODO: Check learning rate
-    # TODO: Check flatten
-
 # CONFIGURATION X  - sentdex tutorial inspired
 '''
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
