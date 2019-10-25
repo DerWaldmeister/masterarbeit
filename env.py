@@ -506,10 +506,15 @@ def runSimulation(runSimulation_input):
                     placeholder = 2
 
                 elif policyType == "neuralNetworkModel" and neuralNetworkType == "2dimensional combined convnet":
-                    # Reshape the currentState_readyToStartActivitiesMatrix so that it fits into input shape of the neural network
+                    # Reshape the currentState_readyToStartActivitiesMatrix so that it fits into input shape of the convolutional neural network
                     currentState_readyToStartActivitiesMatrix = currentState_readyToStartActivitiesMatrix.reshape(
                         [-1, stateVectorLength, stateVectorLength, 1])
-                    outputNeuralNetworkModel = decisionTool.predict(currentState_readyToStartActivitiesMatrix)
+
+                    # Reshape the currentState_futureResourceUtilisation so that it fits into input shape of the convolutional neural network
+                    # rows: number of rows, columns: timeHorizon
+                    currentState_futureResourceUtilisation = currentState_futureResourceUtilisation.reshape([-1, numberOfResources, timeHorizon, 1])
+                    print("currentState_futureResourceUtilisation: " + currentState_futureResourceUtilisation)
+                    outputNeuralNetworkModel = decisionTool.predict(currentState_readyToStartActivitiesMatrix, currentState_futureResourceUtilisation)
                     priorityValues = outputNeuralNetworkModel[0]
 
                 elif policyType == "most critical resource":
