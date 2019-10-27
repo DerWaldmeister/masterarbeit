@@ -7,7 +7,7 @@ import re
 from env import runSimulation, runSimulation_input, activitySequence, activity
 from convnet_1d import create1dConvNetNeuralNetworkModel
 from convnet_2d import create2dConvNetNeuralNetworkModel
-from convnet_2d_futureResourceUtilisation import createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation
+from combined_convnet_2d import createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation
 import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
