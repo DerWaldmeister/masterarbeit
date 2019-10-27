@@ -288,10 +288,11 @@ elif neuralNetworkType == "2dimensional combined convnet":
         # NEW:
         neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
-        print("Success!")
     # NEW:
-    neuralNetworkModel.fit({"input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices, "input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500, show_metric= True, batch_size=32, run_id="trainNeuralNetworkModel")
-
+    neuralNetworkModel.fit({"input_currentState": states,
+                           "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                           show_metric=True, run_id="trainNeuralNetworkModel")
 else:
     print("No neural network")
 

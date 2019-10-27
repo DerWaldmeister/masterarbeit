@@ -292,12 +292,12 @@ elif neuralNetworkType == "2dimensional combined convnet":
     # Reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
 
+    # NEW:
     # Turn futureResourceUtilisationMatrices into tuples
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
-    # Reshape futureResourceUtilisationMatrices
-    print("futureResourceUtilisationMatrices: " + str(futureResourceUtilisationMatrices))
-    print("futureResourceUtilisationMatrices[0]: " + str(futureResourceUtilisationMatrices))
-
+    # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
+    futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
+        [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
 
     if importExistingNeuralNetworkModel:
         neuralNetworkModelAlreadyExists = False
@@ -312,8 +312,8 @@ elif neuralNetworkType == "2dimensional combined convnet":
         neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
     # NEW:
-    neuralNetworkModel.fit({"input currentState": states},
-                           {"input futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
+    neuralNetworkModel.fit({"input_currentState": states,
+                           "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
                            show_metric=True, run_id="trainNeuralNetworkModel")
 

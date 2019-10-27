@@ -513,8 +513,7 @@ def runSimulation(runSimulation_input):
                     # Reshape the currentState_futureResourceUtilisation so that it fits into input shape of the convolutional neural network
                     # rows: number of rows, columns: timeHorizon
                     currentState_futureResourceUtilisation = currentState_futureResourceUtilisation.reshape([-1, numberOfResources, timeHorizon, 1])
-                    print("currentState_futureResourceUtilisation: " + currentState_futureResourceUtilisation)
-                    outputNeuralNetworkModel = decisionTool.predict(currentState_readyToStartActivitiesMatrix, currentState_futureResourceUtilisation)
+                    outputNeuralNetworkModel = decisionTool.predict({"input_futureResourceUtilisationMatrix": currentState_futureResourceUtilisation, "input_currentState": currentState_readyToStartActivitiesMatrix})
                     priorityValues = outputNeuralNetworkModel[0]
 
                 elif policyType == "most critical resource":
