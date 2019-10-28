@@ -2,6 +2,7 @@ import tflearn
 from tflearn.layers.conv import conv_1d, max_pool_1d
 from tflearn.layers.core import input_data, dropout, fully_connected, flatten
 from tflearn.layers.estimator import regression
+from datetime import datetime
 
 
 #CONFIGURATION 1
@@ -206,6 +207,9 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 #CONFIGURATION 7
 
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
+
+    # Specify the log directory
+    logdir = 'log/2d_combined/' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     convnet = input_data(shape=[None, input_size], name='input')
     convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)

@@ -38,7 +38,7 @@ numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "2dimensional combined convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional combined convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
 if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == "2dimensional convnet":
     useFutureResourceUtilisation = False
@@ -47,7 +47,7 @@ if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == "2dimensi
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 50 #walk entire samples
+numberOfEpochs = 100 #walk entire samples
 learningRate = 0.1
 
 # paths
@@ -96,21 +96,6 @@ indexFilesTrain, indexFilesValidate, indexFilesTest = randomizeTrainValidateTest
 numberOfFilesTrain = len(indexFilesTrain)
 numberOfFilesValidate = len(indexFilesValidate)
 numberOfFilesTest = len(indexFilesTest)
-'''
-numberOfFilesTest = round(numberOfFiles * percentageOfFilesTest)
-numberOfFilesTrain = numberOfFiles - numberOfFilesTest
-indexFiles = list(range(0, numberOfFiles))
-indexFilesTrain = []
-indexFilesTest = []
-
-# choose the first element of every set to test
-for i in range(numberOfFilesTest):
-    # randomIndex = random.randrange(0, len(indexFiles))
-    randomIndex = i*9
-    indexFilesTest.append(indexFiles[randomIndex])
-    del indexFiles[randomIndex]#delete
-indexFilesTrain = indexFiles
-'''
 
 # organize the read activity sequences in classes
 for i in range(numberOfFiles):
@@ -237,7 +222,6 @@ for i in range(numberOfFilesTrain):
 
 ####  TRAIN MODEL USING TRAINING DATA  ####
 # look for existing model
-#TODO: implement the application of  convnet_for_futureResourceUtilisation
 print("Train neural network model")
 
 # 1dimensional convnet without using futureResoureUtilisationMatrix
@@ -255,8 +239,8 @@ if neuralNetworkType == "1dimensional convnet":
         neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           show_metric=True, run_id="config_X")
 
 # 2dimensional convnet without using futureResoureUtilisationMatrix
 elif neuralNetworkType == "2dimensional convnet":
@@ -277,8 +261,8 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           show_metric=True, run_id="config_X")
 
 # combination of a 1 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "1dimensional combined convnet":
@@ -312,8 +296,8 @@ elif neuralNetworkType == "1dimensional combined convnet":
 
     neuralNetworkModel.fit({"input_currentState": states,
                             "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           show_metric=True, run_id="config_X")
 
 # combination of a 2 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "2dimensional combined convnet":
@@ -346,8 +330,8 @@ elif neuralNetworkType == "2dimensional combined convnet":
     # NEW:
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           show_metric=True, run_id="config_X")
 
 
 

@@ -232,8 +232,8 @@ if neuralNetworkType == "1dimensional convnet":
         neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
         #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           show_metric=True, run_id="config_1")
 
 # 2dimensional convnet without using futureResoureUtilisationMatrix
 elif neuralNetworkType == "2dimensional convnet":
@@ -253,8 +253,8 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           show_metric=True, run_id="config_X")
 
 
 elif neuralNetworkType == "1dimensional combined convnet":
@@ -280,7 +280,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_step=1, snapshot_epoch=True,
-                           show_metric=True, run_id="train_1")
+                           show_metric=True, run_id="config_X")
 
 
 elif neuralNetworkType == "2dimensional combined convnet":
@@ -316,8 +316,8 @@ elif neuralNetworkType == "2dimensional combined convnet":
     # NEW:
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           show_metric=True, run_id="config_X")
 else:
     print("No neural network")
 

@@ -4,13 +4,19 @@ from tflearn.layers.conv import conv_1d, max_pool_1d
 from tflearn.layers.core import input_data, dropout, fully_connected, flatten
 from tflearn.layers.estimator import regression
 from tflearn.layers.merge_ops import merge, merge_outputs
+from datetime import datetime
 
 
 
 
+#CONFIGURATION1
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix
                                                                               ):
+
+    # Specify the log directory
+    logdir='log/1d_combined/' + datetime.now().strftime("%Y%m%d-%H%M%S")
+
     # tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.5)
 
     #### 2d-convolutional layers for FutureResourceUtilisationMatrix ####
@@ -25,16 +31,14 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
     convnetResourceUtilisation = flatten(convnetResourceUtilisation)
 
-    # in order to merge network outputs they need to have the same size:
-    # fully connected layer for smaller network to have the same size
-    #convnetResourceUtilisation = fully_connected(convnetResourceUtilisation, n_units=980)
-    #print("convnetResourceUtilisationOutput: " + str(convnetResourceUtilisationOutput))
-
     #### 1d-convolutional layers for currentState ####
     convnetCurrentState = input_data(shape=[None, input_size_states], name='input_currentState')
     convnetCurrentState = tflearn.embedding(convnetCurrentState, input_dim=input_size_states, output_dim=2)
 
-    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=10, filter_size=5, strides=1, padding='same', activation='relu')
+    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=10, filter_size=7, strides=1, padding='same', activation='relu')
+    convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=1, padding='valid')
+
+    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=20, filter_size=5, strides=1, padding='same', activation='relu')
     convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=2, padding='valid')
 
     convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=20, filter_size=3, strides=1, padding='valid', activation='relu')
@@ -48,14 +52,14 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
     #### final fully connected layers ####
     finalNet = fully_connected(finalNet, n_units=1800, weights_init='truncated_normal', activation='relu')
-    finalNet = dropout(finalNet, 0.8)
+    finalNet = dropout(finalNet, 0.5)
 
     finalNet = fully_connected(finalNet, n_units=900, weights_init='truncated_normal', activation='relu')
-    finalNet = dropout(finalNet, 0.8)
+    finalNet = dropout(finalNet, 0.5)
 
     finalNet = fully_connected(finalNet, n_units=output_size_actions, activation='softmax')
     finalNet = regression(finalNet, optimizer='adam', learning_rate=learningRate, loss='categorical_crossentropy', name='targets')
 
-    model = tflearn.DNN(finalNet, tensorboard_dir='log', tensorboard_verbose=0)
+    model = tflearn.DNN(finalNet, tensorboard_dir=logdir, tensorboard_verbose=0)
 
     return model

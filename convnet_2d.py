@@ -2,6 +2,7 @@ import tflearn
 from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected, flatten
 from tflearn.layers.estimator import regression
+from datetime import datetime
 
 
 # CONFIGURATION X  - sentdex tutorial inspired
@@ -166,6 +167,9 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 #CONFIGURATION 5
 
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
+
+    # Specify the log directory
+    logdir = 'log/2d_combined/' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     convnet = input_data(shape=[None, input_size, input_size,1], name='input')
 
