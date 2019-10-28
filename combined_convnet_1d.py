@@ -13,7 +13,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
                                                                               ):
     # tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.5)
 
-    #### convolutional layers for FutureResourceUtilisationMatrix ####
+    #### 2d-convolutional layers for FutureResourceUtilisationMatrix ####
     # How to configure input_data: https://stackoverflow.com/questions/48482746/tflearn-what-is-input-data
     convnetResourceUtilisation = input_data(shape=[None, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix, 1], name='input_futureResourceUtilisationMatrix')
 
@@ -30,25 +30,23 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     #convnetResourceUtilisation = fully_connected(convnetResourceUtilisation, n_units=980)
     #print("convnetResourceUtilisationOutput: " + str(convnetResourceUtilisationOutput))
 
-    #### convolutional layers for currentState ####
+    #### 1d-convolutional layers for currentState ####
     convnetCurrentState = input_data(shape=[None, input_size_states], name='input_currentState')
+    convnetCurrentState = tflearn.embedding(convnetCurrentState, input_dim=input_size_states, output_dim=2)
 
     convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=10, filter_size=5, strides=1, padding='same', activation='relu')
     convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=2, padding='valid')
 
-    convnetCurrentState = conv_2d(convnetCurrentState, nb_filter=20, filter_size=3, strides=1, padding='valid', activation='relu')
+    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=20, filter_size=3, strides=1, padding='valid', activation='relu')
     convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=2, padding='valid')
 
     convnetCurrentState = flatten(convnetCurrentState)
-    #convnetCurrentState = fully_connected(convnetCurrentState, n_units=980)
-    # print("convnetCurrentStateOutput: " + str(convnetCurrentState))
 
     # merging the outputs of both convolutional nets
     finalNet = merge_outputs([convnetResourceUtilisation, convnetCurrentState], 'concat') # axis=0 is concatenation
-    #print("finalNet1: " + str(finalNet))
-    #### final fully connected layers ####
-    #neural_net = input_data(shape=[None, 980])
 
+
+    #### final fully connected layers ####
     finalNet = fully_connected(finalNet, n_units=1800, weights_init='truncated_normal', activation='relu')
     finalNet = dropout(finalNet, 0.8)
 

@@ -503,7 +503,18 @@ def runSimulation(runSimulation_input):
                     priorityValues = outputNeuralNetworkModel[0]
 
                 elif policyType == "neuralNetworkModel" and neuralNetworkType == "1dimensional combined convnet":
-                    placeholder = 2
+                    currentState_readyToStartActivities = currentState_readyToStartActivities.reshape(-1, stateVectorLength)
+
+                    # Reshape the currentState_futureResourceUtilisation so that it fits into input shape of the convolutional neural network
+                    # rows: number of rows, columns: timeHorizon
+                    currentState_futureResourceUtilisation = currentState_futureResourceUtilisation.reshape(
+                        [-1, numberOfResources, timeHorizon, 1])
+
+                    outputNeuralNetworkModel = decisionTool.predict(
+                        {"input_futureResourceUtilisationMatrix": currentState_futureResourceUtilisation,
+                         "input_currentState": currentState_readyToStartActivities})
+                    priorityValues = outputNeuralNetworkModel[0]
+
 
                 elif policyType == "neuralNetworkModel" and neuralNetworkType == "2dimensional combined convnet":
                     # Reshape the currentState_readyToStartActivitiesMatrix so that it fits into input shape of the convolutional neural network
@@ -606,7 +617,12 @@ def runSimulation(runSimulation_input):
                     currentStateActionPairsOfRun.append(currentStateActionPair)
 
                 elif neuralNetworkType == "1dimensional combined convnet":
-                    placeholder = 2
+                    currentStateActionPair = stateActionPair()
+                    currentStateActionPair.state = currentState_readyToStartActivities
+                    currentStateActionPair.action = currentAction
+                    currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
+
+                    currentStateActionPairsOfRun.append(currentStateActionPair)
 
                 elif neuralNetworkType == "2dimensional combined convnet":
                     currentStateActionPair = stateActionPair()
