@@ -8,6 +8,7 @@ from env import runSimulation, runSimulation_input, activitySequence, activity
 from convnet_1d import create1dConvNetNeuralNetworkModel
 from convnet_2d import create2dConvNetNeuralNetworkModel
 from combined_convnet_2d import createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation
+from combined_convnet_1d import createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation
 import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
@@ -281,7 +282,38 @@ elif neuralNetworkType == "2dimensional convnet":
 
 # combination of a 1 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "1dimensional combined convnet":
-    placeholderVariable = 2
+    # NEW:
+    # Turn futureResourceUtilisationMatrices into tuples
+    futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
+    # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
+    futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
+        [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
+
+    if importExistingNeuralNetworkModel:
+        print("check if a neural network model exists")
+        if neuralNetworkModelAlreadyExists:
+            print("import neural network model exists")
+
+        else:
+            neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),
+                                                                                                       len(actions[0]),
+                                                                                                       learningRate,
+                                                                                                       len(
+                                                                                                           futureResourceUtilisationMatrices[
+                                                                                                               0]), len(
+                    futureResourceUtilisationMatrices[0][0]))
+            # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+    else:
+        neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),
+                                                                                                   len(actions[0]),
+                                                                                                   learningRate, len(
+                futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
+        # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+
+    neuralNetworkModel.fit({"input_currentState": states,
+                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
+                           show_metric=True, run_id="trainNeuralNetworkModel")
 
 # combination of a 2 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "2dimensional combined convnet":

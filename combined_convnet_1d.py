@@ -56,6 +56,6 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     finalNet = fully_connected(finalNet, n_units=output_size_actions, activation='softmax')
     finalNet = regression(finalNet, optimizer='adam', learning_rate=learningRate, loss='categorical_crossentropy', name='targets')
 
-    model = tflearn.DNN(finalNet, tensorboard_dir='log')
+    model = tflearn.DNN(finalNet, tensorboard_dir='log', tensorboard_verbose=0)
 
     return model

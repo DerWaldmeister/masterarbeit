@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 import random
 import re
+import tensorboard
 from randomize_train_validate_test_indices import randomizeTrainValidateTestIndeces
 from env import runSimulation, runSimulation_input, activitySequence, activity
 from convnet_1d import create1dConvNetNeuralNetworkModel
@@ -264,8 +265,6 @@ elif neuralNetworkType == "1dimensional combined convnet":
     futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
         [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
 
-    print("states[0]: " + str(states[0]))
-
     if importExistingNeuralNetworkModel:
         print("check if a neural network model exists")
         if neuralNetworkModelAlreadyExists:
@@ -280,9 +279,8 @@ elif neuralNetworkType == "1dimensional combined convnet":
 
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=500,
-                           show_metric=True, run_id="trainNeuralNetworkModel")
-
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_step=1, snapshot_epoch=True,
+                           show_metric=True, run_id="train_1")
 
 
 elif neuralNetworkType == "2dimensional combined convnet":
@@ -643,7 +641,6 @@ print("sumTotalDurationWithShortestSumDurationTest = " + str(sumTotalDurationWit
 t_end = time.time()
 t_computation = t_end - t_start
 print("t_computation = " + str(t_computation))
-
 
 
 #write ouput to excel
