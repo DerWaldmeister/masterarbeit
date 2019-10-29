@@ -30,7 +30,7 @@ maxTasksPerChildToGenerateData = 4        # 4 is the best for paoloPC
 
 # input state vector  parameters
 numberOfActivitiesInStateVector = 6
-rescaleFactorTime = 0.1
+rescaleFactorTime = 0.001
 timeHorizon = 10
 
 # random generation parameters
@@ -47,7 +47,7 @@ if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == "2dimensi
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 100 #walk entire samples
+numberOfEpochs = 250 #walk entire samples
 learningRate = 0.1
 
 # paths
@@ -65,8 +65,10 @@ decisions_indexActivity = []
 decisions_indexActivityPowerset = []
 states = []
 actions = []
-# NEW:
 futureResourceUtilisationMatrices = []
+statesValidationSet = []
+actionsValidationSet = []
+futureResourceUtilisationMatricesValidationSet = []
 sumTotalDurationRandomValidateRecord = []
 sumTotalDurationWithNeuralNetworkModelValidateRecord = []
 sumTotalDurationWithCriticalResourceValidateRecord = []
@@ -208,6 +210,7 @@ for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
     activitySequences[indexFilesTrain[i]].trivialDecisionPercentageMean = runSimulation_outputs[i].trivialDecisionPercentageMean
 
+    # saving validation set states, actions and futureResourceUtilisationMatrices
     for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
         states.append(currentStateActionPair.state)
         actions.append(currentStateActionPair.action)
@@ -219,7 +222,50 @@ for i in range(numberOfFilesTrain):
 #print('state',states)
 #print('actions:',actions)
 
+####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATION ACTIVITY SEQUENCES  ####
+print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')
+runSimulation_inputs = []
+for i in range(numberOfFilesValidate):
+    currentRunSimulation_input = runSimulation_input()
+    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+    currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
+    currentRunSimulation_input.timeDistribution = timeDistribution
+    currentRunSimulation_input.purpose = "generateData"
+    currentRunSimulation_input.randomDecisionProbability = 1
+    currentRunSimulation_input.policyType = None
+    currentRunSimulation_input.neuralNetworkType = None
+    currentRunSimulation_input.decisionTool = None
+    currentRunSimulation_input.numberOfResources = numberOfResources
+    currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+    currentRunSimulation_input.stateVectorLength = stateVectorLength
+    currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+    currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+    currentRunSimulation_input.numberOfActivities = numberOfActivities
+    currentRunSimulation_input.timeHorizon = timeHorizon
 
+    runSimulation_inputs.append(currentRunSimulation_input)
+
+pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
+
+runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
+# assign simulation results to activity sequences
+
+for i in range(numberOfFilesValidate):
+    activitySequences[indexFilesValidate[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
+    activitySequences[indexFilesValidate[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
+    activitySequences[indexFilesValidate[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
+    activitySequences[indexFilesValidate[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
+    activitySequences[indexFilesValidate[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
+    activitySequences[indexFilesValidate[i]].trivialDecisionPercentageMean = runSimulation_outputs[i].trivialDecisionPercentageMean
+
+    # saving validation set states, actions and futureResourceUtilisationMatrices
+    for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
+        statesValidationSet.append(currentStateActionPair.state)
+        actionsValidationSet.append(currentStateActionPair.action)
+        futureResourceUtilisationMatricesValidationSet.append(currentStateActionPair.futureResourceUtilisationMatrix)
+
+
+#------------------------------------------------------Training neural net-------------------------------------------
 ####  TRAIN MODEL USING TRAINING DATA  ####
 # look for existing model
 print("Train neural network model")
@@ -297,7 +343,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
     neuralNetworkModel.fit({"input_currentState": states,
                             "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
-                           show_metric=True, run_id="config_X")
+                           show_metric=True, run_id="combined_config_1_lr0.0001_epochs250")
 
 # combination of a 2 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "2dimensional combined convnet":
@@ -335,44 +381,8 @@ elif neuralNetworkType == "2dimensional combined convnet":
 
 
 
-####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATION ACTIVITY SEQUENCES  ####
-print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')
-runSimulation_inputs = []
-for i in range(numberOfFilesValidate):
-    currentRunSimulation_input = runSimulation_input()
-    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
-    currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
-    currentRunSimulation_input.timeDistribution = timeDistribution
-    currentRunSimulation_input.purpose = "testPolicy"
-    currentRunSimulation_input.randomDecisionProbability = 1
-    currentRunSimulation_input.policyType = None
-    currentRunSimulation_input.neuralNetworkType = None
-    currentRunSimulation_input.decisionTool = None
-    currentRunSimulation_input.numberOfResources = numberOfResources
-    currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
-    currentRunSimulation_input.stateVectorLength = stateVectorLength
-    currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
-    currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
-    currentRunSimulation_input.numberOfActivities = numberOfActivities
-    currentRunSimulation_input.timeHorizon = timeHorizon
 
-    runSimulation_inputs.append(currentRunSimulation_input)
-
-pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
-
-runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
-# assign simulation results to activity sequences
-
-for i in range(numberOfFilesValidate):
-    activitySequences[indexFilesValidate[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
-    activitySequences[indexFilesValidate[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
-    activitySequences[indexFilesValidate[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
-    activitySequences[indexFilesValidate[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
-    activitySequences[indexFilesValidate[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
-    activitySequences[indexFilesValidate[i]].trivialDecisionPercentageMean = runSimulation_outputs[i].trivialDecisionPercentageMean
-
-
-#-----------------------------------------------------------------NN------------------------------------------------------------------------------
+#-----------------------------------------------------------------NeuralNet------------------------------------------------------------------------------
 ####  TEST NEURAL NETWORK MODEL ON TRAIN ACTIVITY SEQUENCES  ####
 # run simulations with neural network model as decision tool (not possible to use multiprocessing -> apparently is not possible to parallelize processes on GPU)
 print('###### NEURAL NETWORK MODEL ON TRAIN ACTIVITY SEQUENCES  ######')

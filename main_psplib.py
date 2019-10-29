@@ -69,12 +69,22 @@ decisions_indexActivityPowerset = []
 states = []
 actions = []
 futureResourceUtilisationMatrices = []
+statesValidationSet = []
+actionsValidationSet = []
+futureResourceUtilisationMatricesValidationSet = []
 #actionsPossibilities = []
+'''
 sumTotalDurationRandomTestRecord = []
 sumTotalDurationWithNeuralNetworkModelTestRecord = []
 sumTotalDurationWithCriticalResourceTestRecord = []
 sumTotalDurationWithShortestProcessingTestRecord = []
 sumTotalDurationWithShortestSumDurationTestRecord = []
+'''
+sumTotalDurationRandomValidateRecord = []
+sumTotalDurationWithNeuralNetworkModelValidateRecord = []
+sumTotalDurationWithCriticalResourceValidateRecord = []
+sumTotalDurationWithShortestProcessingValidateRecord = []
+sumTotalDurationWithShortestSumDurationValidateRecord = []
 sumTotalDurationRandomTrainRecord = []
 sumTotalDurationWithNeuralNetworkModelTrainRecord = []
 sumTotalDurationWithCriticalResourceTrainRecord = []
@@ -95,21 +105,6 @@ numberOfFilesTrain = len(indexFilesTrain)
 numberOfFilesValidate = len(indexFilesValidate)
 numberOfFilesTest = len(indexFilesTest)
 
-'''
-numberOfFilesTest = round(numberOfFiles * percentageOfFilesTest)
-numberOfFilesTrain = numberOfFiles - numberOfFilesTest
-indexFiles = list(range(0, numberOfFiles))
-indexFilesTrain = []
-indexFilesTest = []
-
-# choose the first element of every set to test
-for i in range(numberOfFilesTest):
-    # randomIndex = random.randrange(0, len(indexFiles))
-    randomIndex = i*9
-    indexFilesTest.append(indexFiles[randomIndex])
-    del indexFiles[randomIndex]#delete
-indexFilesTrain = indexFiles
-'''
 
 # organize the read activity sequences in classes
 for i in range(numberOfFiles):
@@ -198,8 +193,6 @@ pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
 runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 # assign simulation results to activity sequences and append training data
 
-
-
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
     activitySequences[indexFilesTrain[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
@@ -208,12 +201,58 @@ for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
     activitySequences[indexFilesTrain[i]].trivialDecisionPercentageMean = runSimulation_outputs[i].trivialDecisionPercentageMean
 
+    #saving training set states, actions and futureResourceUtilisationMatrices
     for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
         states.append(currentStateActionPair.state)
         actions.append(currentStateActionPair.action)
         futureResourceUtilisationMatrices.append(currentStateActionPair.futureResourceUtilisationMatrix)
 
 
+####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATE ACTIVITY SEQUENCES  ####
+print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')
+runSimulation_inputs = []
+for i in range(indexFilesValidate):
+    currentRunSimulation_input = runSimulation_input()
+    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+    currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
+    currentRunSimulation_input.timeDistribution = timeDistribution
+    currentRunSimulation_input.purpose = "generateData"
+    currentRunSimulation_input.randomDecisionProbability = 1
+    currentRunSimulation_input.policyType = None
+    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+    currentRunSimulation_input.decisionTool = None
+    currentRunSimulation_input.numberOfResources = numberOfResources
+    currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+    currentRunSimulation_input.stateVectorLength = stateVectorLength
+    currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+    currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+    currentRunSimulation_input.numberOfActivities = numberOfActivities
+    currentRunSimulation_input.timeHorizon = timeHorizon
+
+    runSimulation_inputs.append(currentRunSimulation_input)
+
+pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
+
+runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
+# assign simulation results to activity sequences
+
+for i in range(numberOfFilesValidate):
+    activitySequences[indexFilesValidate[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
+    activitySequences[indexFilesValidate[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
+    activitySequences[indexFilesValidate[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
+    activitySequences[indexFilesValidate[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
+    activitySequences[indexFilesValidate[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
+    activitySequences[indexFilesValidate[i]].trivialDecisionPercentageMean = runSimulation_outputs[
+        i].trivialDecisionPercentageMean
+
+    #saving validation set states, actions and futureResourceUtilisationMatrices
+    for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
+        statesValidationSet.append(currentStateActionPair.state)
+        actionsValidationSet.append(currentStateActionPair.action)
+        futureResourceUtilisationMatricesValidationSet.append(currentStateActionPair.futureResourceUtilisationMatrix)
+
+
+#------------------------------------------------------Training neural net-------------------------------------------
 ####  TRAIN MODEL USING TRAINING DATA  ####
 # look for existing model
 print("Train neural network model")
@@ -321,45 +360,9 @@ elif neuralNetworkType == "2dimensional combined convnet":
 else:
     print("No neural network")
 
-####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH TEST ACTIVITY SEQUENCES  ####
-print('######  RANDOM DECISION ON TEST ACTIVITY SEQUENCES  ######')
-runSimulation_inputs = []
-for i in range(numberOfFilesTest):
-    currentRunSimulation_input = runSimulation_input()
-    currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
-    currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
-    currentRunSimulation_input.timeDistribution = timeDistribution
-    currentRunSimulation_input.purpose = "testPolicy"
-    currentRunSimulation_input.randomDecisionProbability = 1
-    currentRunSimulation_input.policyType = None
-    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
-    currentRunSimulation_input.decisionTool = None
-    currentRunSimulation_input.numberOfResources = numberOfResources
-    currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
-    currentRunSimulation_input.stateVectorLength = stateVectorLength
-    currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
-    currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
-    currentRunSimulation_input.numberOfActivities = numberOfActivities
-    currentRunSimulation_input.timeHorizon = timeHorizon
-
-    runSimulation_inputs.append(currentRunSimulation_input)
-
-pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
-
-runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
-# assign simulation results to activity sequences
-
-for i in range(numberOfFilesTest):
-    activitySequences[indexFilesTest[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
-    activitySequences[indexFilesTest[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
-    activitySequences[indexFilesTest[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
-    activitySequences[indexFilesTest[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
-    activitySequences[indexFilesTest[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
-    activitySequences[indexFilesTest[i]].trivialDecisionPercentageMean = runSimulation_outputs[
-        i].trivialDecisionPercentageMean
 
 
-# -----------------------------------------------------------------NN------------------------------------------------------------------------------
+# -----------------------------------------------------------------NeuralNet------------------------------------------------------------------------------
 ####  TEST NEURAL NETWORK MODEL ON TRAIN ACTIVITY SEQUENCES  ####
 # run simulations with neural network model as decision tool (not possible to use multiprocessing -> apparently is not possible to parallelize processes on GPU)
 print('###### NEURAL NETWORK MODEL ON TRAIN ACTIVITY SEQUENCES  ######')
@@ -385,12 +388,12 @@ for i in range(numberOfFilesTrain):
 
     activitySequences[indexFilesTrain[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
 
-####  TEST NEURAL NETWORK MODEL ON TEST ACTIVITY SEQUENCES  ####
+####  TEST NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ####
 # run simulations with neural network model as decision tool (not possible to use multiprocessing -> apparently is not possible to parallelize processes on GPU)
-print('###### NEURAL NETWORK MODEL ON TEST ACTIVITY SEQUENCES  ######')
-for i in range(numberOfFilesTest):
+print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+for i in range(indexFilesValidate):
     currentRunSimulation_input = runSimulation_input()
-    currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
     currentRunSimulation_input.timeDistribution = timeDistribution
     currentRunSimulation_input.purpose = "testPolicy"
@@ -408,7 +411,7 @@ for i in range(numberOfFilesTest):
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-    activitySequences[indexFilesTest[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+    activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
 
 
 # Xialoei: critical resource method, shortest processing time, shortest sumDuration
@@ -445,11 +448,11 @@ for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationWithCriticalResource = runSimulation_outputs[i].totalDurationMean
 
 
-####  TEST CRITICAL RESOURCE METHOD ON TEST ACTIVITY SEQUENCES  ####
-print('###### CRITICAL RESOURCE METHOD ON TEST ACTIVITY SEQUENCES  ######')
-for i in range(numberOfFilesTest):
+####  TEST CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
+print('###### CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
+for i in range(indexFilesValidate):
     currentRunSimulation_input = runSimulation_input()
-    currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
     currentRunSimulation_input.timeDistribution = timeDistribution
     currentRunSimulation_input.purpose = "testPolicy"
@@ -467,7 +470,7 @@ for i in range(numberOfFilesTest):
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-    activitySequences[indexFilesTest[i]].totalDurationWithCriticalResource = currentRunSimulation_output.totalDurationMean
+    activitySequences[indexFilesValidate[i]].totalDurationWithCriticalResource = currentRunSimulation_output.totalDurationMean
 
 # ---------------------------------------------------------Shortest Processing Time----------------------------------------------------------------------------
 ####  TEST SHORTEST PROCESSING TIME METHOD ON TRAIN ACTIVITY SEQUENCES  ####
@@ -500,11 +503,11 @@ runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationWithShortestProcessingTime = runSimulation_outputs[i].totalDurationMean
 
-####  TEST SHORTEST PROCESSING TIME METHOD ON TEST ACTIVITY SEQUENCES  ####
-print('###### SHORTEST PROCESSING TIME METHOD ON TEST ACTIVITY SEQUENCES  ######')
-for i in range(numberOfFilesTest):
+####  TEST SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
+print('###### SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
+for i in range(indexFilesValidate):
     currentRunSimulation_input = runSimulation_input()
-    currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
     currentRunSimulation_input.timeDistribution = timeDistribution
     currentRunSimulation_input.purpose = "testPolicy"
@@ -522,7 +525,7 @@ for i in range(numberOfFilesTest):
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-    activitySequences[indexFilesTest[i]].totalDurationWithShortestProcessingTime = currentRunSimulation_output.totalDurationMean
+    activitySequences[indexFilesValidate[i]].totalDurationWithShortestProcessingTime = currentRunSimulation_output.totalDurationMean
 
  # ---------------------------------------------------------shortest sumDuration including successor----------------------------------------------------------------------------
 ####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON TRAIN ACTIVITY SEQUENCES  ####
@@ -555,11 +558,11 @@ runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationWithShortestSumDuration = runSimulation_outputs[i].totalDurationMean
 
-####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR TIME METHOD ON TEST ACTIVITY SEQUENCES  ####
-print('###### SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON TEST ACTIVITY SEQUENCES  ######')
-for i in range(numberOfFilesTest):
+####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
+print('###### SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
+for i in range(indexFilesValidate):
     currentRunSimulation_input = runSimulation_input()
-    currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
     currentRunSimulation_input.timeDistribution = timeDistribution
     currentRunSimulation_input.purpose = "testPolicy"
@@ -577,7 +580,7 @@ for i in range(numberOfFilesTest):
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-    activitySequences[indexFilesTest[i]].totalDurationWithShortestSumDuration = currentRunSimulation_output.totalDurationMean
+    activitySequences[indexFilesValidate[i]].totalDurationWithShortestSumDuration = currentRunSimulation_output.totalDurationMean
 
 #------------------------------------------------------EVALUATION-----------------------------------------------------------------------------
 ####  EVALUATION OF RESULTS OF TRAIN ACTIVITY SEQUENCES  ####
@@ -601,6 +604,28 @@ sumTotalDurationWithCriticalResourceTrainRecord.append(sumTotalDurationWithCriti
 sumTotalDurationWithShortestProcessingTrainRecord.append(sumTotalDurationWithShortestProcessingTrain)
 sumTotalDurationWithShortestSumDurationTrainRecord.append(sumTotalDurationWithShortestSumDurationTrain)
 
+####  EVALUATION OF NN RESULTS OF VALIDATE ACTIVITY SEQUENCES  ####
+sumTotalDurationRandomValidate = 0
+sumTotalDurationWithNeuralNetworkModelValidate = 0
+sumTotalDurationWithCriticalResourceValidate = 0
+sumTotalDurationWithShortestProcessingValidate = 0
+sumTotalDurationWithShortestSumDurationValidate = 0
+
+for i in range(numberOfFilesValidate):
+    sumTotalDurationRandomValidate += activitySequences[indexFilesValidate[i]].totalDurationMean
+    sumTotalDurationRandomValidate = round(sumTotalDurationRandomValidate,4)
+    sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[indexFilesValidate[i]].totalDurationWithPolicy
+    sumTotalDurationWithCriticalResourceValidate += activitySequences[indexFilesValidate[i]].totalDurationWithCriticalResource
+    sumTotalDurationWithShortestProcessingValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestProcessingTime
+    sumTotalDurationWithShortestSumDurationValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestSumDuration
+
+
+sumTotalDurationRandomValidateRecord.append(sumTotalDurationRandomValidate)
+sumTotalDurationWithNeuralNetworkModelValidateRecord.append(sumTotalDurationWithNeuralNetworkModelValidate)
+sumTotalDurationWithCriticalResourceValidateRecord.append(sumTotalDurationWithCriticalResourceValidate)
+sumTotalDurationWithShortestProcessingValidateRecord.append(sumTotalDurationWithShortestProcessingValidate)
+sumTotalDurationWithShortestSumDurationValidateRecord.append(sumTotalDurationWithShortestSumDurationValidate)
+'''
 ####  EVALUATION OF NN RESULTS OF TEST ACTIVITY SEQUENCES  ####
 sumTotalDurationRandomTest = 0
 sumTotalDurationWithNeuralNetworkModelTest = 0
@@ -622,7 +647,7 @@ sumTotalDurationWithNeuralNetworkModelTestRecord.append(sumTotalDurationWithNeur
 sumTotalDurationWithCriticalResourceTestRecord.append(sumTotalDurationWithCriticalResourceTest)
 sumTotalDurationWithShortestProcessingTestRecord.append(sumTotalDurationWithShortestProcessingTest)
 sumTotalDurationWithShortestSumDurationTestRecord.append(sumTotalDurationWithShortestSumDurationTest)
-
+'''
 
 print("neuralNetworkType: " + neuralNetworkType)
 print("sumTotalDurationRandomTrain = " + str(sumTotalDurationRandomTrain))
@@ -630,11 +655,11 @@ print("sumTotalDurationWithNeuralNetworkModelTrain = " + str(sumTotalDurationWit
 print("sumTotalDurationWithCriticalResourceTrain = " + str(sumTotalDurationWithCriticalResourceTrain))
 print("sumTotalDurationWithShortestProcessingTrain = " + str(sumTotalDurationWithShortestProcessingTrain))
 print("sumTotalDurationWithShortestSumDurationTrain = " + str(sumTotalDurationWithShortestSumDurationTrain))
-print("sumTotalDurationRandomTest = " + str(sumTotalDurationRandomTest))
-print("sumTotalDurationWithNeuralNetworkModelTest = " + str(sumTotalDurationWithNeuralNetworkModelTest))
-print("sumTotalDurationWithCriticalResourceTest = " + str(sumTotalDurationWithCriticalResourceTest))
-print("sumTotalDurationWithShortestProcessingTest = " + str(sumTotalDurationWithShortestProcessingTest))
-print("sumTotalDurationWithShortestSumDurationTest = " + str(sumTotalDurationWithShortestSumDurationTest))
+print("sumTotalDurationRandomValidate = " + str(sumTotalDurationRandomValidate))
+print("sumTotalDurationWithNeuralNetworkModelValidate = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
+print("sumTotalDurationWithCriticalResourceValidate = " + str(sumTotalDurationWithCriticalResourceValidate))
+print("sumTotalDurationWithShortestProcessingValidate = " + str(sumTotalDurationWithShortestProcessingValidate))
+print("sumTotalDurationWithShortestSumDurationValidate = " + str(sumTotalDurationWithShortestSumDurationValidate))
 
 
 # compute computation time
@@ -656,7 +681,7 @@ ws.merge_cells('A2:E2')
 ws.merge_cells('F2:J2')
 ws['A2'] = 'durations on train set'
 ws['A2'].alignment = alignCenter
-ws['F2'] = 'durations on test set'
+ws['F2'] = 'durations on validate set'
 ws['F2'].alignment = alignCenter
 
 ws['A3'] = 'Random'
@@ -675,13 +700,11 @@ ws['B4'].value = sumTotalDurationWithNeuralNetworkModelTrain
 ws['C4'].value = sumTotalDurationWithCriticalResourceTrain
 ws['D4'].value = sumTotalDurationWithShortestProcessingTrain
 ws['E4'].value = sumTotalDurationWithShortestSumDurationTrain
-ws['F4'].value = sumTotalDurationRandomTest
-ws['G4'].value = sumTotalDurationWithNeuralNetworkModelTest
-ws['H4'].value = sumTotalDurationWithCriticalResourceTest
-ws['I4'].value = sumTotalDurationWithShortestProcessingTest
-ws['J4'].value = sumTotalDurationWithShortestSumDurationTest
-
-
+ws['F4'].value = sumTotalDurationRandomValidate
+ws['G4'].value = sumTotalDurationWithNeuralNetworkModelValidate
+ws['H4'].value = sumTotalDurationWithCriticalResourceValidate
+ws['I4'].value = sumTotalDurationWithShortestProcessingValidate
+ws['J4'].value = sumTotalDurationWithShortestSumDurationValidate
 
 
 ws.column_dimensions['A'].width = 10.0
