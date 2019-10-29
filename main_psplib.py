@@ -211,7 +211,7 @@ for i in range(numberOfFilesTrain):
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATE ACTIVITY SEQUENCES  ####
 print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')
 runSimulation_inputs = []
-for i in range(indexFilesValidate):
+for i in range(numberOfFilesValidate):
     currentRunSimulation_input = runSimulation_input()
     currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
@@ -271,6 +271,8 @@ if neuralNetworkType == "1dimensional convnet":
         neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
         #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
+    runId = "1d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
                            show_metric=True, run_id="config_1")
 
@@ -292,8 +294,10 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
+    runId = "2d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
-                           show_metric=True, run_id="config_X")
+                           show_metric=True, run_id=runId)
 
 
 elif neuralNetworkType == "1dimensional combined convnet":
@@ -303,6 +307,12 @@ elif neuralNetworkType == "1dimensional combined convnet":
     # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
     futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
         [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
+
+    # Turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
+    futureResourceUtilisationMatricesValidationSet = np.asarray(futureResourceUtilisationMatricesValidationSet)
+    futureResourceUtilisationMatricesValidationSet = futureResourceUtilisationMatricesValidationSet.reshape(
+        [-1, len(futureResourceUtilisationMatricesValidationSet[0]), len(futureResourceUtilisationMatricesValidationSet[0][0]), 1])
+
 
     if importExistingNeuralNetworkModel:
         print("check if a neural network model exists")
@@ -316,10 +326,12 @@ elif neuralNetworkType == "1dimensional combined convnet":
         neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]), len(actions[0]), learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
         #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
+    runId = "1d_combined_config_1_lr"  + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_step=1, snapshot_epoch=True,
-                           show_metric=True, run_id="config_X")
+                           {"targets": actions}, n_epoch=numberOfEpochs, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet), snapshot_step=1, snapshot_epoch=True,
+                           show_metric=True, run_id=runId)
 
 
 elif neuralNetworkType == "2dimensional combined convnet":
@@ -346,17 +358,16 @@ elif neuralNetworkType == "2dimensional combined convnet":
         if neuralNetworkModelAlreadyExists:
             print("import neural network model exists")
         else:
-            # NEW:
             neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate,len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
     else:
-        # NEW:
         neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
-    # NEW:
+    runId = "2d_combined_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
-                           show_metric=True, run_id="config_X")
+                           show_metric=True, run_id=runId)
 else:
     print("No neural network")
 
@@ -391,7 +402,7 @@ for i in range(numberOfFilesTrain):
 ####  TEST NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ####
 # run simulations with neural network model as decision tool (not possible to use multiprocessing -> apparently is not possible to parallelize processes on GPU)
 print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
-for i in range(indexFilesValidate):
+for i in range(numberOfFilesValidate):
     currentRunSimulation_input = runSimulation_input()
     currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
@@ -450,7 +461,7 @@ for i in range(numberOfFilesTrain):
 
 ####  TEST CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
-for i in range(indexFilesValidate):
+for i in range(numberOfFilesValidate):
     currentRunSimulation_input = runSimulation_input()
     currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
@@ -505,7 +516,7 @@ for i in range(numberOfFilesTrain):
 
 ####  TEST SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
-for i in range(indexFilesValidate):
+for i in range(numberOfFilesValidate):
     currentRunSimulation_input = runSimulation_input()
     currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
@@ -560,7 +571,7 @@ for i in range(numberOfFilesTrain):
 
 ####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
-for i in range(indexFilesValidate):
+for i in range(numberOfFilesValidate):
     currentRunSimulation_input = runSimulation_input()
     currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy

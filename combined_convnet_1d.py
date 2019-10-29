@@ -19,6 +19,25 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
     # tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.5)
 
+    #### 1d-convolutional layers for currentState ####
+    convnetCurrentState = input_data(shape=[None, input_size_states], name='input_currentState')
+    convnetCurrentState = tflearn.embedding(convnetCurrentState, input_dim=input_size_states, output_dim=2)
+
+    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=10, filter_size=7, strides=1, padding='same',
+                                  activation='relu')
+    convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=1, padding='valid')
+
+    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=20, filter_size=5, strides=1, padding='same',
+                                  activation='relu')
+    convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=2, padding='valid')
+
+    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=20, filter_size=3, strides=1, padding='valid',
+                                  activation='relu')
+    convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=2, padding='valid')
+
+    convnetCurrentState = flatten(convnetCurrentState)
+
+
     #### 2d-convolutional layers for FutureResourceUtilisationMatrix ####
     # How to configure input_data: https://stackoverflow.com/questions/48482746/tflearn-what-is-input-data
     convnetResourceUtilisation = input_data(shape=[None, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix, 1], name='input_futureResourceUtilisationMatrix')
@@ -31,20 +50,6 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
     convnetResourceUtilisation = flatten(convnetResourceUtilisation)
 
-    #### 1d-convolutional layers for currentState ####
-    convnetCurrentState = input_data(shape=[None, input_size_states], name='input_currentState')
-    convnetCurrentState = tflearn.embedding(convnetCurrentState, input_dim=input_size_states, output_dim=2)
-
-    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=10, filter_size=7, strides=1, padding='same', activation='relu')
-    convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=1, padding='valid')
-
-    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=20, filter_size=5, strides=1, padding='same', activation='relu')
-    convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=2, padding='valid')
-
-    convnetCurrentState = conv_1d(convnetCurrentState, nb_filter=20, filter_size=3, strides=1, padding='valid', activation='relu')
-    convnetCurrentState = max_pool_1d(convnetCurrentState, kernel_size=2, strides=2, padding='valid')
-
-    convnetCurrentState = flatten(convnetCurrentState)
 
     # merging the outputs of both convolutional nets
     finalNet = merge_outputs([convnetResourceUtilisation, convnetCurrentState], 'concat') # axis=0 is concatenation

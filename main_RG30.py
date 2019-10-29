@@ -48,7 +48,7 @@ generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 250 #walk entire samples
-learningRate = 0.1
+learningRate = 0.001
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -264,6 +264,9 @@ for i in range(numberOfFilesValidate):
         actionsValidationSet.append(currentStateActionPair.action)
         futureResourceUtilisationMatricesValidationSet.append(currentStateActionPair.futureResourceUtilisationMatrix)
 
+print("statesValidationSet[10]", statesValidationSet[10])
+print("actionsValidationSet[10]", actionsValidationSet[10])
+print("futureResourceUtilisationMatricesValidationSet[10]", futureResourceUtilisationMatricesValidationSet[10])
 
 #------------------------------------------------------Training neural net-------------------------------------------
 ####  TRAIN MODEL USING TRAINING DATA  ####
@@ -285,8 +288,10 @@ if neuralNetworkType == "1dimensional convnet":
         neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
+    runId = "1d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
-                           show_metric=True, run_id="config_X")
+                           show_metric=True, run_id=runId)
 
 # 2dimensional convnet without using futureResoureUtilisationMatrix
 elif neuralNetworkType == "2dimensional convnet":
@@ -307,8 +312,10 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
+    runId = "2d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
-                           show_metric=True, run_id="config_X")
+                           show_metric=True, run_id=runId)
 
 # combination of a 1 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "1dimensional combined convnet":
@@ -340,6 +347,8 @@ elif neuralNetworkType == "1dimensional combined convnet":
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
+    runId = "1d_combined_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input_currentState": states,
                             "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
@@ -367,13 +376,12 @@ elif neuralNetworkType == "2dimensional combined convnet":
         if neuralNetworkModelAlreadyExists:
             print("import neural network model exists")
         else:
-            # NEW:
             neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate,len(futureResourceUtilisationMatrices[0]),len(futureResourceUtilisationMatrices[0][0]))
     else:
-        # NEW:
         neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
-    # NEW:
+    runId = "2d_combined_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
