@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 #CONFIGURATION 1
+
 '''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
@@ -209,7 +210,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
-    logdir = 'log/2d_combined/' + datetime.now().strftime("%Y%m%d-%H%M%S")
+    logdir = 'log/1d/' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     convnet = input_data(shape=[None, input_size], name='input')
     convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)
@@ -241,7 +242,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = regression(convnet, optimizer='adam', learning_rate=learningRate, loss='categorical_crossentropy',
                          name='targets')
 
-    model = tflearn.DNN(convnet, tensorboard_dir='log')
+    model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
 

@@ -169,7 +169,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
-    logdir = 'log/2d_combined/' + datetime.now().strftime("%Y%m%d-%H%M%S")
+    logdir = 'log/2d/' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     convnet = input_data(shape=[None, input_size, input_size,1], name='input')
 
@@ -201,6 +201,6 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = fully_connected(convnet, n_units=output_size, activation='softmax')
     convnet = regression(convnet, optimizer='adam', learning_rate=learningRate, loss='categorical_crossentropy', name='targets')
 
-    model = tflearn.DNN(convnet, tensorboard_dir='log')
+    model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
