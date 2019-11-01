@@ -63,9 +63,11 @@ numberOfResources = None
 activitySequences = []
 decisions_indexActivity = []
 decisions_indexActivityPowerset = []
+# states, action and futureResourceUtilisationMatrices of training set
 states = []
 actions = []
 futureResourceUtilisationMatrices = []
+# states, action and futureResourceUtilisationMatrices of validation set
 statesValidationSet = []
 actionsValidationSet = []
 futureResourceUtilisationMatricesValidationSet = []
