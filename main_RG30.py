@@ -13,6 +13,7 @@ import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
 from randomize_train_validate_test_indices import randomizeTrainValidateTestIndeces
+from datetime import datetime
 
 t_start = time.time()
 
@@ -38,17 +39,17 @@ numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "1dimensional combined convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
-if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == "2dimensional convnet":
-    useFutureResourceUtilisation = False
+if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
+    useFutureResourceUtilisation = True
 
 # train parameter
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 250 #walk entire samples
-learningRate = 0.001
+numberOfEpochs = 200 #walk entire samples
+learningRate = 0.0001
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -196,6 +197,7 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     runSimulation_inputs.append(currentRunSimulation_input)
 
@@ -244,6 +246,7 @@ for i in range(numberOfFilesValidate):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     runSimulation_inputs.append(currentRunSimulation_input)
 
@@ -292,8 +295,8 @@ if neuralNetworkType == "1dimensional convnet":
 
     runId = "1d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
-                           show_metric=True, run_id=runId)
+    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+                           show_metric=False, run_id=runId)
 
 # 2dimensional convnet without using futureResoureUtilisationMatrix
 elif neuralNetworkType == "2dimensional convnet":
@@ -413,6 +416,7 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
@@ -440,6 +444,7 @@ for i in range(numberOfFilesValidate):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
@@ -468,6 +473,7 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     runSimulation_inputs.append(currentRunSimulation_input)
 
@@ -498,6 +504,7 @@ for i in range(numberOfFilesValidate):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
@@ -524,6 +531,7 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     runSimulation_inputs.append(currentRunSimulation_input)
 
@@ -553,6 +561,7 @@ for i in range(numberOfFilesValidate):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
@@ -579,6 +588,7 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     runSimulation_inputs.append(currentRunSimulation_input)
 
@@ -608,6 +618,7 @@ for i in range(numberOfFilesValidate):
     currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
     currentRunSimulation_input.numberOfActivities = numberOfActivities
     currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
@@ -683,15 +694,20 @@ ws = wb.create_sheet('Durations_psplib',0)
 
 alignCenter = Alignment(horizontal='center')
 
-ws['A1'] = 'Durations'
-ws['B1'] = 'Computation time'
-ws['C1'].value = t_computation
-ws.merge_cells('A2:E2')
-ws.merge_cells('F2:J2')
-ws['A2'] = 'durations on train set'
-ws['A2'].alignment = alignCenter
-ws['F2'] = 'durations on validation set'
-ws['F2'].alignment = alignCenter
+ws['A1'] = runId
+ws['C1'] = 'LR:'
+ws['D1'].value = learningRate
+ws['E1'] = 'epochs:'
+ws['F1'].value = numberOfEpochs
+ws['A2'] = 'Durations'
+ws['B2'] = 'Computation time'
+ws['C2'].value = t_computation
+ws.merge_cells('A3:E3')
+ws.merge_cells('F3:J3')
+ws['A3'] = 'durations on train set'
+ws['A3'].alignment = alignCenter
+ws['F3'] = 'durations on validate set'
+ws['F3'].alignment = alignCenter
 
 ws['A3'] = 'Random'
 ws['B3'] = 'NeuralNetworkModel'
@@ -751,5 +767,6 @@ ws['H4'].alignment = alignCenter
 ws['I4'].alignment = alignCenter
 ws['J4'].alignment = alignCenter
 
+logdir = '/durations/' + datetime.now().strftime('%Y%m%d-%H%M%S') + '_durations_psplib.xlsx'
 
-wb.save(relativePath + "/durations_rg30.xlsx")
+wb.save(relativePath + logdir)
