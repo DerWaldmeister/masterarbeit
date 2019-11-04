@@ -13,10 +13,10 @@ from convnet_2d import create2dConvNetNeuralNetworkModel
 from combined_convnet_2d import createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation
 from combined_convnet_1d import createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation
 from datetime import datetime
-
 import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
+from monitorCallback import MonitorCallback
 
 t_start = time.time()
 
@@ -44,6 +44,7 @@ numberOfMainRun = 1
 # neural network type
 neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
+useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
     useFutureResourceUtilisation = True
 
@@ -51,7 +52,7 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 500 #walk entire samples
+numberOfEpochs = 50 #walk entire samples
 learningRate = 0.0001
 
 # paths
@@ -262,6 +263,8 @@ for i in range(numberOfFilesValidate):
 # look for existing model
 print("Train neural network model")
 
+monitorCallback = MonitorCallback()
+
 # 1dimensional convnet without using futureResoureUtilisationMatrix
 if neuralNetworkType == "1dimensional convnet":
     if importExistingNeuralNetworkModel:
@@ -279,7 +282,7 @@ if neuralNetworkType == "1dimensional convnet":
     runId = "1d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
     neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
-                           show_metric=True, run_id=runId)
+                           show_metric=True, run_id=runId, callbacks=monitorCallback)
 
 # 2dimensional convnet without using futureResoureUtilisationMatrix
 elif neuralNetworkType == "2dimensional convnet":

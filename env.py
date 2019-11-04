@@ -358,7 +358,7 @@ def runSimulation(runSimulation_input):
                         #currentState_readyToStartActivities = []
                         #currentState_readyToStartActivitiesMatrix = [[]]
                 else:
-                    print("Error creating state vector / state")
+                    print("Error creating state vector / state matrix")
 
                 if useFutureResourceUtilisation == True:
                     # 1.4.1 add future resourceUtilisation for active activities
@@ -603,7 +603,7 @@ def runSimulation(runSimulation_input):
 
                     currentStateActionPair.state = currentState_readyToStartActivities
                     currentStateActionPair.action = currentAction
-                    currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
+                    #currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
 
                     #print("len(currentStateActionPair.futureResourceUtilisationMatrix) is number of rows:" + str(len(currentStateActionPair.futureResourceUtilisationMatrix)))
                     #print("len(currentStateActionPair.futureResourceUtilisationMatrix[0]) is number of columns:" + str(len(currentStateActionPair.futureResourceUtilisationMatrix[0])))
@@ -615,7 +615,7 @@ def runSimulation(runSimulation_input):
                     currentStateActionPair = stateActionPair()
                     currentStateActionPair.state = currentState_readyToStartActivitiesMatrix
                     currentStateActionPair.action = currentAction
-                    currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
+                    #currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
 
                     currentStateActionPairsOfRun.append(currentStateActionPair)
 
