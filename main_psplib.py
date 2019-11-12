@@ -17,6 +17,7 @@ import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
 from monitorCallback import MonitorCallback
+from fitNeuralNet import fit1DimensionalConvnet
 
 t_start = time.time()
 
@@ -42,7 +43,7 @@ numberOfSimulationRunsToTestPolicy = 1
 numberOfMainRun = 1
 
 # neural network type
-neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "2dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -52,8 +53,9 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 50 #walk entire samples
-learningRate = 0.0001
+numberOfEpochs = 150 #walk entire samples
+learningRate = 0.01
+numberOfTotalSimulationRuns = 7
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -68,32 +70,6 @@ numberOfResources = None
 activitySequences = []
 decisions_indexActivity = []
 decisions_indexActivityPowerset = []
-# states, action and futureResourceUtilisationMatrices of training set
-states = []
-actions = []
-futureResourceUtilisationMatrices = []
-# states, action and futureResourceUtilisationMatrices of validation set
-statesValidationSet = []
-actionsValidationSet = []
-futureResourceUtilisationMatricesValidationSet = []
-#actionsPossibilities = []
-'''
-sumTotalDurationRandomTestRecord = []
-sumTotalDurationWithNeuralNetworkModelTestRecord = []
-sumTotalDurationWithCriticalResourceTestRecord = []
-sumTotalDurationWithShortestProcessingTestRecord = []
-sumTotalDurationWithShortestSumDurationTestRecord = []
-'''
-sumTotalDurationRandomValidateRecord = []
-sumTotalDurationWithNeuralNetworkModelValidateRecord = []
-sumTotalDurationWithCriticalResourceValidateRecord = []
-sumTotalDurationWithShortestProcessingValidateRecord = []
-sumTotalDurationWithShortestSumDurationValidateRecord = []
-sumTotalDurationRandomTrainRecord = []
-sumTotalDurationWithNeuralNetworkModelTrainRecord = []
-sumTotalDurationWithCriticalResourceTrainRecord = []
-sumTotalDurationWithShortestProcessingTrainRecord = []
-sumTotalDurationWithShortestSumDurationTrainRecord = []
 
 # read all activity sequences from database
 absolutePathProjectsGlob = absolutePathProjects + "*.txt"
@@ -166,6 +142,33 @@ for i in range(0, numberOfActivitiesInStateVector):
 
 
 
+# states, action and futureResourceUtilisationMatrices of training set
+states = []
+actions = []
+futureResourceUtilisationMatrices = []
+# states, action and futureResourceUtilisationMatrices of validation set
+statesValidationSet = []
+actionsValidationSet = []
+futureResourceUtilisationMatricesValidationSet = []
+#actionsPossibilities = []
+'''
+sumTotalDurationRandomTestRecord = []
+sumTotalDurationWithNeuralNetworkModelTestRecord = []
+sumTotalDurationWithCriticalResourceTestRecord = []
+sumTotalDurationWithShortestProcessingTestRecord = []
+sumTotalDurationWithShortestSumDurationTestRecord = []
+'''
+sumTotalDurationRandomValidateRecord = []
+sumTotalDurationWithNeuralNetworkModelValidateRecord = []
+sumTotalDurationWithCriticalResourceValidateRecord = []
+sumTotalDurationWithShortestProcessingValidateRecord = []
+sumTotalDurationWithShortestSumDurationValidateRecord = []
+sumTotalDurationRandomTrainRecord = []
+sumTotalDurationWithNeuralNetworkModelTrainRecord = []
+sumTotalDurationWithCriticalResourceTrainRecord = []
+sumTotalDurationWithShortestProcessingTrainRecord = []
+sumTotalDurationWithShortestSumDurationTrainRecord = []
+
 #--------------------------------------------------------------RANDOM-----------------------------------------------------------------------------
 ####  GENERATE TRAINING DATA USING RANDOM DECISIONS (WITHOUT USING pool.map) ####
 print("######  RANDOM DECISION ON TRAIN ACTIVITY SEQUENCES  ######")
@@ -196,8 +199,8 @@ for i in range(numberOfFilesTrain):
 pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
 
 runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
-# assign simulation results to activity sequences and append training data
 
+# assign simulation results to activity sequences and append training data
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
     activitySequences[indexFilesTrain[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
@@ -211,7 +214,6 @@ for i in range(numberOfFilesTrain):
         states.append(currentStateActionPair.state)
         actions.append(currentStateActionPair.action)
         futureResourceUtilisationMatrices.append(currentStateActionPair.futureResourceUtilisationMatrix)
-
 
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATE ACTIVITY SEQUENCES  ####
 print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')
@@ -257,16 +259,17 @@ for i in range(numberOfFilesValidate):
         actionsValidationSet.append(currentStateActionPair.action)
         futureResourceUtilisationMatricesValidationSet.append(currentStateActionPair.futureResourceUtilisationMatrix)
 
-
 #------------------------------------------------------Training neural net-------------------------------------------
 ####  TRAIN MODEL USING TRAINING DATA  ####
 # look for existing model
 print("Train neural network model")
 
-monitorCallback = MonitorCallback()
+#monitorCallback = MonitorCallback()
 
 # 1dimensional convnet without using futureResoureUtilisationMatrix
 if neuralNetworkType == "1dimensional convnet":
+    #fittedNeuralNetworkModel, runId = fit1DimensionalConvnet(neuralNetworkType, learningRate, numberOfEpochs, states, actions, statesValidationSet, actionsValidationSet)
+
     if importExistingNeuralNetworkModel:
         print("check if a neural network model exists")
         if neuralNetworkModelAlreadyExists:
@@ -274,15 +277,17 @@ if neuralNetworkType == "1dimensional convnet":
 
         else:
             neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-            #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+            # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
     else:
         neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-        #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+        # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
     runId = "1d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
-    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
-                           show_metric=True, run_id=runId, callbacks=monitorCallback)
+    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs,
+                           snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+                           show_metric=True, run_id=runId)
+
 
 # 2dimensional convnet without using futureResoureUtilisationMatrix
 elif neuralNetworkType == "2dimensional convnet":
@@ -292,6 +297,11 @@ elif neuralNetworkType == "2dimensional convnet":
     #print("states[0]: " + str(states[0]))
     # Reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
+
+    # Reshape validation states
+    statesValidationSet = np.asarray(statesValidationSet)
+    statesValidationSet = statesValidationSet.reshape([-1, len(statesValidationSet[0]), len(statesValidationSet[0]), 1])
+
     if importExistingNeuralNetworkModel:
         neuralNetworkModelAlreadyExists = False
         print("check if a neural network model exists")
@@ -304,12 +314,11 @@ elif neuralNetworkType == "2dimensional convnet":
 
     runId = "2d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
-    neuralNetworkModel.fit({"input": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                            show_metric=True, run_id=runId)
 
 
 elif neuralNetworkType == "1dimensional combined convnet":
-    # NEW:
     # Turn futureResourceUtilisationMatrices into tuples
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
     # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
@@ -350,7 +359,6 @@ elif neuralNetworkType == "2dimensional combined convnet":
     # Reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
 
-    # NEW:
     # Turn futureResourceUtilisationMatrices into tuples
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
     # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
@@ -378,7 +386,6 @@ elif neuralNetworkType == "2dimensional combined convnet":
                            show_metric=True, run_id=runId)
 else:
     print("No neural network")
-
 
 
 # -----------------------------------------------------------------NeuralNet------------------------------------------------------------------------------
@@ -470,6 +477,7 @@ for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationWithCriticalResource = runSimulation_outputs[i].totalDurationMean
 
 
+
 ####  TEST CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
 for i in range(numberOfFilesValidate):
@@ -527,6 +535,7 @@ runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationWithShortestProcessingTime = runSimulation_outputs[i].totalDurationMean
 
+
 ####  TEST SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
 for i in range(numberOfFilesValidate):
@@ -583,6 +592,7 @@ runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 # assign simulation results to activity sequences
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationWithShortestSumDuration = runSimulation_outputs[i].totalDurationMean
+
 
 ####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
