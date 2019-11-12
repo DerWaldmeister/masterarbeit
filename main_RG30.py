@@ -50,9 +50,9 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 150 #walk entire samples
+numberOfEpochs = 300 #walk entire samples
 # learning rate
-learningRate = 0.00001
+learningRate = 0.01
 numberOfTotalSimulationRuns = 7
 
 # paths
@@ -326,7 +326,7 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    runId = "2d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "2d_config_2_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
     neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                            show_metric=True, run_id=runId)
@@ -779,6 +779,6 @@ ws['H5'].alignment = alignCenter
 ws['I5'].alignment = alignCenter
 ws['J5'].alignment = alignCenter
 
-logdir = '/durations/' + datetime.now().strftime('%Y%m%d-%H%M%S') + '_durations_rg30.xlsx'
+logdir = '/durations/' + neuralNetworkType +'/' + datetime.now().strftime('%Y%m%d-%H%M%S') + '_durations_rg30.xlsx'
 
 wb.save(relativePath + logdir)
