@@ -368,6 +368,12 @@ elif neuralNetworkType == "2dimensional combined convnet":
     #print("len(futureResourceUtilisationMatrices[0][0]): " + str(len(futureResourceUtilisationMatrices[0][0])))
     #print("futureResourceUtilisationMatrices: " + str(futureResourceUtilisationMatrices))
 
+    # Turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
+    futureResourceUtilisationMatricesValidationSet = np.asarray(futureResourceUtilisationMatricesValidationSet)
+    futureResourceUtilisationMatricesValidationSet = futureResourceUtilisationMatricesValidationSet.reshape(
+        [-1, len(futureResourceUtilisationMatricesValidationSet[0]),
+         len(futureResourceUtilisationMatricesValidationSet[0][0]), 1])
+
     if importExistingNeuralNetworkModel:
         neuralNetworkModelAlreadyExists = False
         print("check if a neural network model exists")

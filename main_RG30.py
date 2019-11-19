@@ -40,7 +40,7 @@ numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "2dimensional convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "2dimensional combined convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -53,7 +53,6 @@ neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 300 #walk entire samples
 # learning rate
 learningRate = 0.01
-numberOfTotalSimulationRuns = 7
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -333,12 +332,17 @@ elif neuralNetworkType == "2dimensional convnet":
 
 # combination of a 1 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "1dimensional combined convnet":
-    # NEW:
     # Turn futureResourceUtilisationMatrices into tuples
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
     # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
     futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
         [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
+
+    # Turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
+    futureResourceUtilisationMatricesValidationSet = np.asarray(futureResourceUtilisationMatricesValidationSet)
+    futureResourceUtilisationMatricesValidationSet = futureResourceUtilisationMatricesValidationSet.reshape(
+        [-1, len(futureResourceUtilisationMatricesValidationSet[0]),
+         len(futureResourceUtilisationMatricesValidationSet[0][0]), 1])
 
     if importExistingNeuralNetworkModel:
         print("check if a neural network model exists")
@@ -361,11 +365,11 @@ elif neuralNetworkType == "1dimensional combined convnet":
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    runId = "1d_combined_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_combined_config_2_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
     neuralNetworkModel.fit({"input_currentState": states,
                             "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                           {"targets": actions}, n_epoch=numberOfEpochs, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet), snapshot_epoch=True,
                            show_metric=True, run_id=runId)
 
 # combination of a 2 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
@@ -387,6 +391,12 @@ elif neuralNetworkType == "2dimensional combined convnet":
     futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
         [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
 
+    # Turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
+    futureResourceUtilisationMatricesValidationSet = np.asarray(futureResourceUtilisationMatricesValidationSet)
+    futureResourceUtilisationMatricesValidationSet = futureResourceUtilisationMatricesValidationSet.reshape(
+        [-1, len(futureResourceUtilisationMatricesValidationSet[0]),
+         len(futureResourceUtilisationMatricesValidationSet[0][0]), 1])
+
     if importExistingNeuralNetworkModel:
         neuralNetworkModelAlreadyExists = False
         print("check if a neural network model exists")
@@ -401,8 +411,8 @@ elif neuralNetworkType == "2dimensional combined convnet":
 
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
-                           show_metric=True, run_id="config_X")
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
+                           show_metric=True, run_id=runId)
 
 
 
