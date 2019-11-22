@@ -77,7 +77,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     # How to configure input_data: https://stackoverflow.com/questions/48482746/tflearn-what-is-input-data
     convnetResourceUtilisation = input_data(shape=[None, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix, 1], name='input_futureResourceUtilisationMatrix')
 
-    convnetResourceUtilisation = conv_2d(convnetResourceUtilisation, nb_filter=16, filter_size=[4, 1], strides=1, padding='valid', activation='relu')
+    convnetResourceUtilisation = conv_2d(convnetResourceUtilisation, nb_filter=16, filter_size=[4, 1], strides=1, padding='same', activation='relu')
     convnetResourceUtilisation = max_pool_2d(convnetResourceUtilisation, kernel_size=[4, 2], strides=2, padding='valid')
 
     convnetResourceUtilisation = flatten(convnetResourceUtilisation)

@@ -35,7 +35,7 @@ def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
         name='input_futureResourceUtilisationMatrix')
 
     convnetResourceUtilisation = conv_2d(convnetResourceUtilisation, nb_filter=16, filter_size=[4, 1], strides=1,
-                                         padding='valid', activation='relu')
+                                         padding='same', activation='relu')
     convnetResourceUtilisation = max_pool_2d(convnetResourceUtilisation, kernel_size=[4, 2], strides=2, padding='valid')
 
     convnetResourceUtilisation = flatten(convnetResourceUtilisation)

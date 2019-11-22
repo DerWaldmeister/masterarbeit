@@ -43,7 +43,7 @@ numberOfSimulationRunsToTestPolicy = 1
 numberOfMainRun = 1
 
 # neural network type
-neuralNetworkType = "2dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "2dimensional combined convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -53,7 +53,7 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 150 #walk entire samples
+numberOfEpochs = 50 #walk entire samples
 learningRate = 0.01
 numberOfTotalSimulationRuns = 7
 
@@ -359,6 +359,10 @@ elif neuralNetworkType == "2dimensional combined convnet":
     # Reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
 
+    # Reshape validation states
+    statesValidationSet = np.asarray(statesValidationSet)
+    statesValidationSet = statesValidationSet.reshape([-1, len(statesValidationSet[0]), len(statesValidationSet[0]), 1])
+
     # Turn futureResourceUtilisationMatrices into tuples
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
     # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
@@ -380,15 +384,24 @@ elif neuralNetworkType == "2dimensional combined convnet":
         if neuralNetworkModelAlreadyExists:
             print("import neural network model exists")
         else:
-            neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate,len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
+            neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),
+                                                                                                       len(actions[0]),
+                                                                                                       learningRate,
+                                                                                                       len(
+                                                                                                           futureResourceUtilisationMatrices[
+                                                                                                               0]), len(
+                    futureResourceUtilisationMatrices[0][0]))
     else:
-        neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
-
+        neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),
+                                                                                                   len(actions[0]),
+                                                                                                   learningRate, len(
+                futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
     runId = "2d_combined_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
     neuralNetworkModel.fit({"input_currentState": states,
-                           "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True,
+                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
+                           {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(
+        [statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
                            show_metric=True, run_id=runId)
 else:
     print("No neural network")
