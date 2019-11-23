@@ -1,8 +1,8 @@
-#log/1d_combined/20191118-125737/1d_combined_config_1_lr0.01_epochs2000/events.out.tfevents.1574078258.paoloPC
-#log/1d_combined/20191118-161440/1d_combined_config_1_lr0.001_epochs2000/events.out.tfevents.1574090080.paoloPC
-#log/2d/20191114-081631/2d_config_2_lr0.001_epochs1500/events.out.tfevents.1573715792.paoloPC
-#log/2d/20191114-111148/2d_config_2_lr0.0005_epochs2000/events.out.tfevents.1573726310.paoloPC
-#log/2d/20191114-144804/2d_config_2_lr0.0001_epochs2000/events.out.tfevents.1573739285.paoloPC
-#log/2d_combined/20191122-092014/2d_combined_config_1_lr0.001_epochs2000/events.out.tfevents.1574410815.paoloPC
-#log/2d_combined/20191122-155657/2d_combined_config_1_lr0.0005_epochs1800/events.out.tfevents.1574434620.paoloPC
+log/1d_combined/20191118-125737/1d_combined_config_1_lr0.01_epochs2000/events.out.tfevents.1574078258.paoloPC
+log/1d_combined/20191118-161440/1d_combined_config_1_lr0.001_epochs2000/events.out.tfevents.1574090080.paoloPC
+log/2d/20191114-081631/2d_config_2_lr0.001_epochs1500/events.out.tfevents.1573715792.paoloPC
+log/2d/20191114-111148/2d_config_2_lr0.0005_epochs2000/events.out.tfevents.1573726310.paoloPC
+log/2d/20191114-144804/2d_config_2_lr0.0001_epochs2000/events.out.tfevents.1573739285.paoloPC
+log/2d_combined/20191122-092014/2d_combined_config_1_lr0.001_epochs2000/events.out.tfevents.1574410815.paoloPC
+log/2d_combined/20191122-155657/2d_combined_config_1_lr0.0005_epochs1800/events.out.tfevents.1574434620.paoloPC
 
