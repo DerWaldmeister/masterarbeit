@@ -43,7 +43,7 @@ numberOfSimulationRunsToTestPolicy = 1
 numberOfMainRun = 1
 
 # neural network type
-neuralNetworkType = "2dimensional combined convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -53,9 +53,9 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 50 #walk entire samples
+numberOfEpochs = 40 #walk entire samples
+epochsTrainingInterval = 10
 learningRate = 0.01
-numberOfTotalSimulationRuns = 7
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -284,9 +284,41 @@ if neuralNetworkType == "1dimensional convnet":
 
     runId = "1d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
-    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs,
+    print("epochsTrainingInterval:" + str(epochsTrainingInterval))
+    print("numberOfEpochs: " + str(numberOfEpochs))
+    epochsCounter = 0
+    print("epochsCounter: " +str(epochsCounter))
+
+    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
                            snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                            show_metric=True, run_id=runId)
+
+    epochsCounter = epochsTrainingInterval
+    print("epochsCounter: " + str(epochsCounter))
+
+    print("epochsTrainingInterval 1:" + str(epochsTrainingInterval))
+
+    #trainingIntervals = numberOfEpochs/10
+    #print("trainingIntervals:" + str(trainingIntervals))
+    #                                                           -1 because NN has already been trained once with initial fit call
+    for i in range(int(numberOfEpochs/epochsTrainingInterval)-1):
+        # save model
+        neuralNetworkModel.save('./savedDNN/temporary_model.tfl')
+
+        # load model
+        neuralNetworkModel.load('./savedDNN/temporary_model.tfl')
+
+        # resume training
+        #numberOfEpochs = numberOfEpochs + epochsTrainingInterval
+        neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
+                               snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+                               show_metric=True, run_id=runId)
+
+        epochsCounter = epochsCounter + epochsTrainingInterval
+
+        print("Doing calculations...")
+        print("epochsTrainingInterval 2:" + str(epochsTrainingInterval))
+        print("epochsCounter: " + str(epochsCounter))
 
 
 # 2dimensional convnet without using futureResoureUtilisationMatrix

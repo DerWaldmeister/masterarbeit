@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/fabian/Documents/RCPSP/savedDNN/temporary_model.tfl"
+all_model_checkpoint_paths: "/home/fabian/Documents/RCPSP/savedDNN/temporary_model.tfl"
