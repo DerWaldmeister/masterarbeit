@@ -161,6 +161,8 @@ sumTotalDurationWithShortestSumDurationTestRecord = []
 '''
 sumTotalDurationRandomValidateRecord = []
 sumTotalDurationWithNeuralNetworkModelValidateRecord = []
+#NEW:
+sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords = []
 sumTotalDurationWithCriticalResourceValidateRecord = []
 sumTotalDurationWithShortestProcessingValidateRecord = []
 sumTotalDurationWithShortestSumDurationValidateRecord = []
@@ -299,8 +301,39 @@ if neuralNetworkType == "1dimensional convnet":
 
     epochsCounter = epochsTrainingInterval
 
-    print("epochsTrainingInterval 1:" + str(epochsTrainingInterval))
     print("epochsCounter: " + str(epochsCounter))
+    print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+    sumTotalDurationWithNeuralNetworkModelValidate = 0
+    for i in range(numberOfFilesValidate):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "neuralNetworkModel"
+        currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+        currentRunSimulation_input.decisionTool = neuralNetworkModel
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+    # Calculates total duration for validation files
+    for i in range(numberOfFilesValidate):
+        sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+            indexFilesValidate[i]].totalDurationWithPolicy
+
+    # Append number of trained epochs and the duration for this number of epochs to Records list
+    sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append([epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
 
     #                                                           -1 because NN has already been trained once with initial fit call
     for i in range(int(numberOfEpochs / epochsTrainingInterval) - 1):
@@ -318,8 +351,41 @@ if neuralNetworkType == "1dimensional convnet":
 
         epochsCounter = epochsCounter + epochsTrainingInterval
 
-        print("Doing calculations...")
-        print("epochsTrainingInterval 2:" + str(epochsTrainingInterval))
+        print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+        sumTotalDurationWithNeuralNetworkModelValidate = 0
+        for i in range(numberOfFilesValidate):
+            currentRunSimulation_input = runSimulation_input()
+            currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+            currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+            currentRunSimulation_input.timeDistribution = timeDistribution
+            currentRunSimulation_input.purpose = "testPolicy"
+            currentRunSimulation_input.randomDecisionProbability = 0
+            currentRunSimulation_input.policyType = "neuralNetworkModel"
+            currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+            currentRunSimulation_input.decisionTool = neuralNetworkModel
+            currentRunSimulation_input.numberOfResources = numberOfResources
+            currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+            currentRunSimulation_input.stateVectorLength = stateVectorLength
+            currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+            currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+            currentRunSimulation_input.numberOfActivities = numberOfActivities
+            currentRunSimulation_input.timeHorizon = timeHorizon
+            currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+            currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+            activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+        # Calculates total duration for validation files
+        for i in range(numberOfFilesValidate):
+            sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy
+
+        # Append number of trained epochs and the duration for this number of epochs to Records list
+        sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
+            [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
         print("epochsCounter: " + str(epochsCounter))
 
 
@@ -482,29 +548,7 @@ for i in range(numberOfFilesTrain):
 
 ####  TEST NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ####
 # run simulations with neural network model as decision tool (not possible to use multiprocessing -> apparently is not possible to parallelize processes on GPU)
-print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
-for i in range(numberOfFilesValidate):
-    currentRunSimulation_input = runSimulation_input()
-    currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
-    currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
-    currentRunSimulation_input.timeDistribution = timeDistribution
-    currentRunSimulation_input.purpose = "testPolicy"
-    currentRunSimulation_input.randomDecisionProbability = 0
-    currentRunSimulation_input.policyType = "neuralNetworkModel"
-    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
-    currentRunSimulation_input.decisionTool = neuralNetworkModel
-    currentRunSimulation_input.numberOfResources = numberOfResources
-    currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
-    currentRunSimulation_input.stateVectorLength = stateVectorLength
-    currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
-    currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
-    currentRunSimulation_input.numberOfActivities = numberOfActivities
-    currentRunSimulation_input.timeHorizon = timeHorizon
-    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
-    currentRunSimulation_output = runSimulation(currentRunSimulation_input)
-
-    activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
 
 # Xialoei: critical resource method, shortest processing time, shortest sumDuration
 
@@ -710,7 +754,7 @@ sumTotalDurationWithShortestSumDurationTrainRecord.append(sumTotalDurationWithSh
 
 ####  EVALUATION OF NN RESULTS OF VALIDATE ACTIVITY SEQUENCES  ####
 sumTotalDurationRandomValidate = 0
-sumTotalDurationWithNeuralNetworkModelValidate = 0
+#sumTotalDurationWithNeuralNetworkModelValidate = 0
 sumTotalDurationWithCriticalResourceValidate = 0
 sumTotalDurationWithShortestProcessingValidate = 0
 sumTotalDurationWithShortestSumDurationValidate = 0
@@ -718,7 +762,7 @@ sumTotalDurationWithShortestSumDurationValidate = 0
 for i in range(numberOfFilesValidate):
     sumTotalDurationRandomValidate += activitySequences[indexFilesValidate[i]].totalDurationMean
     sumTotalDurationRandomValidate = round(sumTotalDurationRandomValidate, 4)
-    sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[indexFilesValidate[i]].totalDurationWithPolicy
+    #sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[indexFilesValidate[i]].totalDurationWithPolicy
     sumTotalDurationWithCriticalResourceValidate += activitySequences[
         indexFilesValidate[i]].totalDurationWithCriticalResource
     sumTotalDurationWithShortestProcessingValidate += activitySequences[
@@ -727,7 +771,7 @@ for i in range(numberOfFilesValidate):
         indexFilesValidate[i]].totalDurationWithShortestSumDuration
 
 sumTotalDurationRandomValidateRecord.append(sumTotalDurationRandomValidate)
-sumTotalDurationWithNeuralNetworkModelValidateRecord.append(sumTotalDurationWithNeuralNetworkModelValidate)
+#sumTotalDurationWithNeuralNetworkModelValidateRecord.append(sumTotalDurationWithNeuralNetworkModelValidate)
 sumTotalDurationWithCriticalResourceValidateRecord.append(sumTotalDurationWithCriticalResourceValidate)
 sumTotalDurationWithShortestProcessingValidateRecord.append(sumTotalDurationWithShortestProcessingValidate)
 sumTotalDurationWithShortestSumDurationValidateRecord.append(sumTotalDurationWithShortestSumDurationValidate)
@@ -762,10 +806,11 @@ print("sumTotalDurationWithCriticalResourceTrain = " + str(sumTotalDurationWithC
 print("sumTotalDurationWithShortestProcessingTrain = " + str(sumTotalDurationWithShortestProcessingTrain))
 print("sumTotalDurationWithShortestSumDurationTrain = " + str(sumTotalDurationWithShortestSumDurationTrain))
 print("sumTotalDurationRandomValidate = " + str(sumTotalDurationRandomValidate))
-print("sumTotalDurationWithNeuralNetworkModelValidate = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
+#print("sumTotalDurationWithNeuralNetworkModelValidate = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
 print("sumTotalDurationWithCriticalResourceValidate = " + str(sumTotalDurationWithCriticalResourceValidate))
 print("sumTotalDurationWithShortestProcessingValidate = " + str(sumTotalDurationWithShortestProcessingValidate))
 print("sumTotalDurationWithShortestSumDurationValidate = " + str(sumTotalDurationWithShortestSumDurationValidate))
+print("sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords= " + str(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords))
 
 # compute computation time
 t_end = time.time()
@@ -810,10 +855,28 @@ ws['C5'].value = sumTotalDurationWithCriticalResourceTrain
 ws['D5'].value = sumTotalDurationWithShortestProcessingTrain
 ws['E5'].value = sumTotalDurationWithShortestSumDurationTrain
 ws['F5'].value = sumTotalDurationRandomValidate
-ws['G5'].value = sumTotalDurationWithNeuralNetworkModelValidate
+#ws['G5'].value = sumTotalDurationWithNeuralNetworkModelValidate
 ws['H5'].value = sumTotalDurationWithCriticalResourceValidate
 ws['I5'].value = sumTotalDurationWithShortestProcessingValidate
 ws['J5'].value = sumTotalDurationWithShortestSumDurationValidate
+
+ws['A7'] = 'Epochs:'
+ws['A8'] = 'DurationNNValidate'
+ws['A9'] = 'Percent. improv. NN vs. Random'
+
+for columnPos in range(len(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords)):
+    # epochs
+    ws.cell(column=2+columnPos, row=7, value=str(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][0]))
+    # durations
+    ws.cell(column=2+columnPos, row=8, value=str(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][1]))
+
+    # Calculate percentage improvement of NNValidateDuration vs RandomValidateDuration
+    percentageImprovement = round(100*(1 - (sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][1]/sumTotalDurationRandomValidate)), 2)
+    # write it in excel sheet
+    ws.cell(column=2+columnPos, row=9,
+            value=str(percentageImprovement))
+
+
 
 ws.column_dimensions['A'].width = 10.0
 ws.column_dimensions['B'].width = 18.0
