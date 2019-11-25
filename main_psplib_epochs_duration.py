@@ -23,14 +23,14 @@ t_start = time.time()
 
 # user defined parameters
 # problem parameters
-timeDistribution = "deterministic"    # deterministic, exponential, uniform_1, uniform_2, ...#
+timeDistribution = "deterministic"  # deterministic, exponential, uniform_1, uniform_2, ...#
 
 # file name flag
 fileNameLabel = 'main_psplib'
 
 # CPU parameters
-numberOfCpuProcessesToGenerateData = 16   # paoloPC has 16 cores
-maxTasksPerChildToGenerateData = 4        # 4 is the best for paoloPC
+numberOfCpuProcessesToGenerateData = 16  # paoloPC has 16 cores
+maxTasksPerChildToGenerateData = 4  # 4 is the best for paoloPC
 
 # input state vector  parameters
 numberOfActivitiesInStateVector = 6
@@ -43,7 +43,7 @@ numberOfSimulationRunsToTestPolicy = 1
 numberOfMainRun = 1
 
 # neural network type
-neuralNetworkType = "1dimensional convnet"   # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional convnet"  # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -53,7 +53,7 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 40 #walk entire samples
+numberOfEpochs = 40  # walk entire samples
 epochsTrainingInterval = 10
 learningRate = 0.01
 
@@ -62,7 +62,7 @@ relativePath = os.path.dirname(__file__)
 absolutePathProjects = relativePath + "/database/psplib_J30/"
 
 # other parameters
-np.set_printoptions(precision=4)    # print precision of numpy variables
+np.set_printoptions(precision=4)  # print precision of numpy variables
 
 # initialise variables
 numberOfActivities = None
@@ -77,14 +77,15 @@ files = sorted(glob.glob(absolutePathProjectsGlob))
 
 # divide all activity sequences in training and test set
 numberOfFiles = len(files)  # 480
-#print("numberOfFiles:" + str(numberOfFiles))
+# print("numberOfFiles:" + str(numberOfFiles))
 
-indexFilesTrain, indexFilesValidate, indexFilesTest = randomizeTrainValidateTestIndeces(numberOfFiles, generateNewTrainTestValidateSets , fileNameLabel)
+indexFilesTrain, indexFilesValidate, indexFilesTest = randomizeTrainValidateTestIndeces(numberOfFiles,
+                                                                                        generateNewTrainTestValidateSets,
+                                                                                        fileNameLabel)
 
 numberOfFilesTrain = len(indexFilesTrain)
 numberOfFilesValidate = len(indexFilesValidate)
 numberOfFilesTest = len(indexFilesTest)
-
 
 # organize the read activity sequences in classes
 for i in range(numberOfFiles):
@@ -117,9 +118,11 @@ for i in range(numberOfFiles):
             else:
                 currentActivity = activity()
                 currentActivity.time = int(lineDecomposed[0])
-                currentActivity.requiredResources = [int(lineDecomposed[1]), int(lineDecomposed[2]),int(lineDecomposed[3]), int(lineDecomposed[4])]
+                currentActivity.requiredResources = [int(lineDecomposed[1]), int(lineDecomposed[2]),
+                                                     int(lineDecomposed[3]), int(lineDecomposed[4])]
                 for IdFollowingActivity in lineDecomposed[6:-1]:
-                    if int(IdFollowingActivity) != numberOfActivities + 2:  # if the following action is not the last dummy activity
+                    if int(
+                            IdFollowingActivity) != numberOfActivities + 2:  # if the following action is not the last dummy activity
                         currentActivity.indexFollowingActivities.append(int(IdFollowingActivity) - 2)
             currentActivitySequence.activities.append(currentActivity)
             line = f.readline()
@@ -133,14 +136,12 @@ for i in range(numberOfFiles):
     activitySequences.append(currentActivitySequence)
 
 # So far no time horizon in the input vector (neither in psplib nor in RG30)
-#stateVectorLength = numberOfActivitiesInStateVector + numberOfActivitiesInStateVector * numberOfResources + numberOfResources + timeHorizon * numberOfResources
+# stateVectorLength = numberOfActivitiesInStateVector + numberOfActivitiesInStateVector * numberOfResources + numberOfResources + timeHorizon * numberOfResources
 stateVectorLength = numberOfActivitiesInStateVector + numberOfActivitiesInStateVector * numberOfResources + numberOfResources
 
 # compute decisions: each decision corresponds to a start of an activity in the local reference system (more than one decision can be taken at once)
 for i in range(0, numberOfActivitiesInStateVector):
     decisions_indexActivity.append(i)
-
-
 
 # states, action and futureResourceUtilisationMatrices of training set
 states = []
@@ -150,7 +151,7 @@ futureResourceUtilisationMatrices = []
 statesValidationSet = []
 actionsValidationSet = []
 futureResourceUtilisationMatricesValidationSet = []
-#actionsPossibilities = []
+# actionsPossibilities = []
 '''
 sumTotalDurationRandomTestRecord = []
 sumTotalDurationWithNeuralNetworkModelTestRecord = []
@@ -169,7 +170,7 @@ sumTotalDurationWithCriticalResourceTrainRecord = []
 sumTotalDurationWithShortestProcessingTrainRecord = []
 sumTotalDurationWithShortestSumDurationTrainRecord = []
 
-#--------------------------------------------------------------RANDOM-----------------------------------------------------------------------------
+# --------------------------------------------------------------RANDOM-----------------------------------------------------------------------------
 ####  GENERATE TRAINING DATA USING RANDOM DECISIONS (WITHOUT USING pool.map) ####
 print("######  RANDOM DECISION ON TRAIN ACTIVITY SEQUENCES  ######")
 runSimulation_inputs = []
@@ -177,7 +178,7 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_input = runSimulation_input()
     currentRunSimulation_input.activitySequence = activitySequences[indexFilesTrain[i]]
     currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
-    #print("numberOfSimulationRunsToGenerateData: " + str(numberOfSimulationRunsToGenerateData))
+    # print("numberOfSimulationRunsToGenerateData: " + str(numberOfSimulationRunsToGenerateData))
     currentRunSimulation_input.timeDistribution = timeDistribution
     currentRunSimulation_input.purpose = "generateData"
     currentRunSimulation_input.randomDecisionProbability = 1
@@ -207,9 +208,10 @@ for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
     activitySequences[indexFilesTrain[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
     activitySequences[indexFilesTrain[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
-    activitySequences[indexFilesTrain[i]].trivialDecisionPercentageMean = runSimulation_outputs[i].trivialDecisionPercentageMean
+    activitySequences[indexFilesTrain[i]].trivialDecisionPercentageMean = runSimulation_outputs[
+        i].trivialDecisionPercentageMean
 
-    #saving training set states, actions and futureResourceUtilisationMatrices
+    # saving training set states, actions and futureResourceUtilisationMatrices
     for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
         states.append(currentStateActionPair.state)
         actions.append(currentStateActionPair.action)
@@ -246,29 +248,30 @@ runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 
 for i in range(numberOfFilesValidate):
     activitySequences[indexFilesValidate[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
-    activitySequences[indexFilesValidate[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
+    activitySequences[indexFilesValidate[i]].totalDurationStandardDeviation = runSimulation_outputs[
+        i].totalDurationStDev
     activitySequences[indexFilesValidate[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
     activitySequences[indexFilesValidate[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
     activitySequences[indexFilesValidate[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
     activitySequences[indexFilesValidate[i]].trivialDecisionPercentageMean = runSimulation_outputs[
         i].trivialDecisionPercentageMean
 
-    #saving validation set states, actions and futureResourceUtilisationMatrices
+    # saving validation set states, actions and futureResourceUtilisationMatrices
     for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
         statesValidationSet.append(currentStateActionPair.state)
         actionsValidationSet.append(currentStateActionPair.action)
         futureResourceUtilisationMatricesValidationSet.append(currentStateActionPair.futureResourceUtilisationMatrix)
 
-#------------------------------------------------------Training neural net-------------------------------------------
+# ------------------------------------------------------Training neural net-------------------------------------------
 ####  TRAIN MODEL USING TRAINING DATA  ####
 # look for existing model
 print("Train neural network model")
 
-#monitorCallback = MonitorCallback()
+# monitorCallback = MonitorCallback()
 
 # 1dimensional convnet without using futureResoureUtilisationMatrix
 if neuralNetworkType == "1dimensional convnet":
-    #fittedNeuralNetworkModel, runId = fit1DimensionalConvnet(neuralNetworkType, learningRate, numberOfEpochs, states, actions, statesValidationSet, actionsValidationSet)
+    # fittedNeuralNetworkModel, runId = fit1DimensionalConvnet(neuralNetworkType, learningRate, numberOfEpochs, states, actions, statesValidationSet, actionsValidationSet)
 
     if importExistingNeuralNetworkModel:
         print("check if a neural network model exists")
@@ -288,7 +291,7 @@ if neuralNetworkType == "1dimensional convnet":
     print("epochsTrainingInterval:" + str(epochsTrainingInterval))
     print("numberOfEpochs: " + str(numberOfEpochs))
     epochsCounter = 0
-    print("epochsCounter: " +str(epochsCounter))
+    print("epochsCounter: " + str(epochsCounter))
 
     neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
                            snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
@@ -300,7 +303,7 @@ if neuralNetworkType == "1dimensional convnet":
     print("epochsCounter: " + str(epochsCounter))
 
     #                                                           -1 because NN has already been trained once with initial fit call
-    for i in range(int(numberOfEpochs/epochsTrainingInterval)-1):
+    for i in range(int(numberOfEpochs / epochsTrainingInterval) - 1):
         # save model
         neuralNetworkModel.save('./savedDNN/temporary_model.tfl')
 
@@ -308,7 +311,7 @@ if neuralNetworkType == "1dimensional convnet":
         neuralNetworkModel.load('./savedDNN/temporary_model.tfl')
 
         # resume training
-        #numberOfEpochs = numberOfEpochs + epochsTrainingInterval
+        # numberOfEpochs = numberOfEpochs + epochsTrainingInterval
         neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
                                snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                                show_metric=True, run_id=runId)
@@ -324,8 +327,8 @@ if neuralNetworkType == "1dimensional convnet":
 elif neuralNetworkType == "2dimensional convnet":
     # Turn states list into tuples
     states = np.asarray(states)
-    #print("states: " + str(states))
-    #print("states[0]: " + str(states[0]))
+    # print("states: " + str(states))
+    # print("states[0]: " + str(states[0]))
     # Reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
 
@@ -345,7 +348,8 @@ elif neuralNetworkType == "2dimensional convnet":
 
     runId = "2d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
-    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs,
+                           snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                            show_metric=True, run_id=runId)
 
 
@@ -359,8 +363,8 @@ elif neuralNetworkType == "1dimensional combined convnet":
     # Turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
     futureResourceUtilisationMatricesValidationSet = np.asarray(futureResourceUtilisationMatricesValidationSet)
     futureResourceUtilisationMatricesValidationSet = futureResourceUtilisationMatricesValidationSet.reshape(
-        [-1, len(futureResourceUtilisationMatricesValidationSet[0]), len(futureResourceUtilisationMatricesValidationSet[0][0]), 1])
-
+        [-1, len(futureResourceUtilisationMatricesValidationSet[0]),
+         len(futureResourceUtilisationMatricesValidationSet[0][0]), 1])
 
     if importExistingNeuralNetworkModel:
         print("check if a neural network model exists")
@@ -368,25 +372,36 @@ elif neuralNetworkType == "1dimensional combined convnet":
             print("import neural network model exists")
 
         else:
-            neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]), len(actions[0]), learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
-            #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+            neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),
+                                                                                                       len(actions[0]),
+                                                                                                       learningRate,
+                                                                                                       len(
+                                                                                                           futureResourceUtilisationMatrices[
+                                                                                                               0]), len(
+                    futureResourceUtilisationMatrices[0][0]))
+            # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
     else:
-        neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]), len(actions[0]), learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
-        #neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+        neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),
+                                                                                                   len(actions[0]),
+                                                                                                   learningRate, len(
+                futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
+        # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    runId = "1d_combined_config_1_lr"  + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_combined_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
 
     neuralNetworkModel.fit({"input_currentState": states,
-                           "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
-                           {"targets": actions}, n_epoch=numberOfEpochs, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet), snapshot_epoch=True,
+                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
+                           {"targets": actions}, n_epoch=numberOfEpochs, validation_set=(
+        [statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
+                           snapshot_epoch=True,
                            show_metric=True, run_id=runId)
 
 
 elif neuralNetworkType == "2dimensional combined convnet":
     # Turn states list into tuples
     states = np.asarray(states)
-    #print("states: " + str(states))
-    #print("states[0]: " + str(states[0]))
+    # print("states: " + str(states))
+    # print("states[0]: " + str(states[0]))
     # Reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
 
@@ -397,11 +412,12 @@ elif neuralNetworkType == "2dimensional combined convnet":
     # Turn futureResourceUtilisationMatrices into tuples
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
     # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
-    futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape([-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
+    futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
+        [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
 
-    #print("len(futureResourceUtilisationMatrices[0]): " + str(len(futureResourceUtilisationMatrices[0])))
-    #print("len(futureResourceUtilisationMatrices[0][0]): " + str(len(futureResourceUtilisationMatrices[0][0])))
-    #print("futureResourceUtilisationMatrices: " + str(futureResourceUtilisationMatrices))
+    # print("len(futureResourceUtilisationMatrices[0]): " + str(len(futureResourceUtilisationMatrices[0])))
+    # print("len(futureResourceUtilisationMatrices[0][0]): " + str(len(futureResourceUtilisationMatrices[0][0])))
+    # print("futureResourceUtilisationMatrices: " + str(futureResourceUtilisationMatrices))
 
     # Turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
     futureResourceUtilisationMatricesValidationSet = np.asarray(futureResourceUtilisationMatricesValidationSet)
@@ -432,11 +448,10 @@ elif neuralNetworkType == "2dimensional combined convnet":
     neuralNetworkModel.fit({"input_currentState": states,
                             "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(
-        [statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
+            [statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
                            show_metric=True, run_id=runId)
 else:
     print("No neural network")
-
 
 # -----------------------------------------------------------------NeuralNet------------------------------------------------------------------------------
 ####  TEST NEURAL NETWORK MODEL ON TRAIN ACTIVITY SEQUENCES  ####
@@ -491,11 +506,10 @@ for i in range(numberOfFilesValidate):
 
     activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
 
-
 # Xialoei: critical resource method, shortest processing time, shortest sumDuration
 
-#---------------------------------------------------------Critical Resource----------------------------------------------------------------------------
-    ####  TEST CRITICAL RESOURCE METHOD ON TRAIN ACTIVITY SEQUENCES  ####
+# ---------------------------------------------------------Critical Resource----------------------------------------------------------------------------
+####  TEST CRITICAL RESOURCE METHOD ON TRAIN ACTIVITY SEQUENCES  ####
 print('###### CRITICAL RESOURCE METHOD ON TRAIN ACTIVITY SEQUENCES  ######')
 runSimulation_inputs = []
 for i in range(numberOfFilesTrain):
@@ -526,8 +540,6 @@ runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationWithCriticalResource = runSimulation_outputs[i].totalDurationMean
 
-
-
 ####  TEST CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### CRITICAL RESOURCE METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
 for i in range(numberOfFilesValidate):
@@ -551,7 +563,8 @@ for i in range(numberOfFilesValidate):
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-    activitySequences[indexFilesValidate[i]].totalDurationWithCriticalResource = currentRunSimulation_output.totalDurationMean
+    activitySequences[
+        indexFilesValidate[i]].totalDurationWithCriticalResource = currentRunSimulation_output.totalDurationMean
 
 # ---------------------------------------------------------Shortest Processing Time----------------------------------------------------------------------------
 ####  TEST SHORTEST PROCESSING TIME METHOD ON TRAIN ACTIVITY SEQUENCES  ####
@@ -583,8 +596,8 @@ pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
 runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 # assign simulation results to activity sequences
 for i in range(numberOfFilesTrain):
-    activitySequences[indexFilesTrain[i]].totalDurationWithShortestProcessingTime = runSimulation_outputs[i].totalDurationMean
-
+    activitySequences[indexFilesTrain[i]].totalDurationWithShortestProcessingTime = runSimulation_outputs[
+        i].totalDurationMean
 
 ####  TEST SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### SHORTEST PROCESSING TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
@@ -609,9 +622,10 @@ for i in range(numberOfFilesValidate):
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-    activitySequences[indexFilesValidate[i]].totalDurationWithShortestProcessingTime = currentRunSimulation_output.totalDurationMean
+    activitySequences[
+        indexFilesValidate[i]].totalDurationWithShortestProcessingTime = currentRunSimulation_output.totalDurationMean
 
- # ---------------------------------------------------------shortest sumDuration including successor----------------------------------------------------------------------------
+# ---------------------------------------------------------shortest sumDuration including successor----------------------------------------------------------------------------
 ####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON TRAIN ACTIVITY SEQUENCES  ####
 print('###### SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON TRAIN ACTIVITY SEQUENCES  ######')
 runSimulation_inputs = []
@@ -641,8 +655,8 @@ pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
 runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
 # assign simulation results to activity sequences
 for i in range(numberOfFilesTrain):
-    activitySequences[indexFilesTrain[i]].totalDurationWithShortestSumDuration = runSimulation_outputs[i].totalDurationMean
-
+    activitySequences[indexFilesTrain[i]].totalDurationWithShortestSumDuration = runSimulation_outputs[
+        i].totalDurationMean
 
 ####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR TIME METHOD ON VALIDATE ACTIVITY SEQUENCES  ####
 print('###### SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON VALIDATE ACTIVITY SEQUENCES  ######')
@@ -667,9 +681,10 @@ for i in range(numberOfFilesValidate):
 
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-    activitySequences[indexFilesValidate[i]].totalDurationWithShortestSumDuration = currentRunSimulation_output.totalDurationMean
+    activitySequences[
+        indexFilesValidate[i]].totalDurationWithShortestSumDuration = currentRunSimulation_output.totalDurationMean
 
-#------------------------------------------------------EVALUATION-----------------------------------------------------------------------------
+# ------------------------------------------------------EVALUATION-----------------------------------------------------------------------------
 ####  EVALUATION OF RESULTS OF TRAIN ACTIVITY SEQUENCES  ####
 sumTotalDurationRandomTrain = 0
 sumTotalDurationWithCriticalResourceTrain = 0
@@ -679,11 +694,13 @@ sumTotalDurationWithShortestSumDurationTrain = 0
 
 for i in range(numberOfFilesTrain):
     sumTotalDurationRandomTrain += activitySequences[indexFilesTrain[i]].totalDurationMean
-    sumTotalDurationRandomTrain = round(sumTotalDurationRandomTrain,4)
+    sumTotalDurationRandomTrain = round(sumTotalDurationRandomTrain, 4)
     sumTotalDurationWithNeuralNetworkModelTrain += activitySequences[indexFilesTrain[i]].totalDurationWithPolicy
     sumTotalDurationWithCriticalResourceTrain += activitySequences[indexFilesTrain[i]].totalDurationWithCriticalResource
-    sumTotalDurationWithShortestProcessingTrain += activitySequences[indexFilesTrain[i]].totalDurationWithShortestProcessingTime
-    sumTotalDurationWithShortestSumDurationTrain += activitySequences[indexFilesTrain[i]].totalDurationWithShortestSumDuration
+    sumTotalDurationWithShortestProcessingTrain += activitySequences[
+        indexFilesTrain[i]].totalDurationWithShortestProcessingTime
+    sumTotalDurationWithShortestSumDurationTrain += activitySequences[
+        indexFilesTrain[i]].totalDurationWithShortestSumDuration
 
 sumTotalDurationRandomTrainRecord.append(sumTotalDurationRandomTrain)
 sumTotalDurationWithNeuralNetworkModelTrainRecord.append(sumTotalDurationWithNeuralNetworkModelTrain)
@@ -700,12 +717,14 @@ sumTotalDurationWithShortestSumDurationValidate = 0
 
 for i in range(numberOfFilesValidate):
     sumTotalDurationRandomValidate += activitySequences[indexFilesValidate[i]].totalDurationMean
-    sumTotalDurationRandomValidate = round(sumTotalDurationRandomValidate,4)
+    sumTotalDurationRandomValidate = round(sumTotalDurationRandomValidate, 4)
     sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[indexFilesValidate[i]].totalDurationWithPolicy
-    sumTotalDurationWithCriticalResourceValidate += activitySequences[indexFilesValidate[i]].totalDurationWithCriticalResource
-    sumTotalDurationWithShortestProcessingValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestProcessingTime
-    sumTotalDurationWithShortestSumDurationValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestSumDuration
-
+    sumTotalDurationWithCriticalResourceValidate += activitySequences[
+        indexFilesValidate[i]].totalDurationWithCriticalResource
+    sumTotalDurationWithShortestProcessingValidate += activitySequences[
+        indexFilesValidate[i]].totalDurationWithShortestProcessingTime
+    sumTotalDurationWithShortestSumDurationValidate += activitySequences[
+        indexFilesValidate[i]].totalDurationWithShortestSumDuration
 
 sumTotalDurationRandomValidateRecord.append(sumTotalDurationRandomValidate)
 sumTotalDurationWithNeuralNetworkModelValidateRecord.append(sumTotalDurationWithNeuralNetworkModelValidate)
@@ -748,16 +767,14 @@ print("sumTotalDurationWithCriticalResourceValidate = " + str(sumTotalDurationWi
 print("sumTotalDurationWithShortestProcessingValidate = " + str(sumTotalDurationWithShortestProcessingValidate))
 print("sumTotalDurationWithShortestSumDurationValidate = " + str(sumTotalDurationWithShortestSumDurationValidate))
 
-
 # compute computation time
 t_end = time.time()
 t_computation = t_end - t_start
 print("t_computation = " + str(t_computation))
 
-
-#write ouput to excel
+# write ouput to excel
 wb = Workbook()
-ws = wb.create_sheet('Durations_psplib',0)
+ws = wb.create_sheet('Durations_psplib', 0)
 
 alignCenter = Alignment(horizontal='center')
 
@@ -797,7 +814,6 @@ ws['G5'].value = sumTotalDurationWithNeuralNetworkModelValidate
 ws['H5'].value = sumTotalDurationWithCriticalResourceValidate
 ws['I5'].value = sumTotalDurationWithShortestProcessingValidate
 ws['J5'].value = sumTotalDurationWithShortestSumDurationValidate
-
 
 ws.column_dimensions['A'].width = 10.0
 ws.column_dimensions['B'].width = 18.0
