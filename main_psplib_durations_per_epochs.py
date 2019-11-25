@@ -300,11 +300,11 @@ if neuralNetworkType == "1dimensional convnet":
                            show_metric=True, run_id=runId)
     # save model
     neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
-
+    # increment by trained epochs
     epochsCounter = epochsTrainingInterval
     print("epochsCounter: " + str(epochsCounter))
 
-    #Duration calculations
+    # duration calculation for initial training period
     print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
     sumTotalDurationWithNeuralNetworkModelValidate = 0
     for i in range(numberOfFilesValidate):
@@ -330,14 +330,15 @@ if neuralNetworkType == "1dimensional convnet":
 
         activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
 
-    # Calculates total duration for validation files
+    # calculates total duration for validation files
     for i in range(numberOfFilesValidate):
         sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
             indexFilesValidate[i]].totalDurationWithPolicy
 
-    # Append number of trained epochs and the duration for this number of epochs to Records list
+    # append number of trained epochs and the duration for this number of epochs to Records list
     sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append([epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
 
+    # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
     #                                                           -1 because NN has already been trained once with initial fit call
     for i in range(int(numberOfEpochs / epochsTrainingInterval) - 1):
         # load model

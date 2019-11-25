@@ -284,7 +284,6 @@ for i in range(numberOfFilesValidate):
 # look for existing model
 print("Train neural network model")
 
-
 # 1dimensional convnet without using futureResoureUtilisationMatrix
 if neuralNetworkType == "1dimensional convnet":
 
@@ -300,17 +299,22 @@ if neuralNetworkType == "1dimensional convnet":
         neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
+    # RunId for simulation run
     runId = "1d_config_3_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    # Model id for saving the model uniquely
+    modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
     print("epochsCounter: " + str(epochsCounter))
 
     neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                            show_metric=True, run_id=runId)
-    # Increment epochsCounter
+    # save model
+    neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+    # increment by trained epochs
     epochsCounter = epochsTrainingInterval
-
-    #Duration calculation for initial training period
     print("epochsCounter: " + str(epochsCounter))
+
+    # duration calculation for initial training period
     print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
     sumTotalDurationWithNeuralNetworkModelValidate = 0
     for i in range(numberOfFilesValidate):
@@ -336,31 +340,30 @@ if neuralNetworkType == "1dimensional convnet":
 
         activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
 
-    # Calculates total duration for validation files
+    # calculates total duration for validation files
     for i in range(numberOfFilesValidate):
         sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
             indexFilesValidate[i]].totalDurationWithPolicy
 
-    # Append number of trained epochs and the duration for this number of epochs to Records list
+    # append number of trained epochs and the duration for this number of epochs to Records list
     sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
         [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
 
-    # Keep training neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration after that
+    # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
     #                                                           -1 because NN has already been trained once with initial fit call
     for i in range(int(numberOfEpochs / epochsTrainingInterval) - 1):
-        # save model
-        neuralNetworkModel.save('./savedDNN/temporary_model.tfl')
         # load model
-        neuralNetworkModel.load('./savedDNN/temporary_model.tfl')
-
+        neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
         # resume training
-        # numberOfEpochs = numberOfEpochs + epochsTrainingInterval
         neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
                                snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                                show_metric=True, run_id=runId)
-
+        # save model
+        neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+        # Increment epochsCounter by number of trained epochs
         epochsCounter = epochsCounter + epochsTrainingInterval
 
+        # Durations calculations
         print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
         sumTotalDurationWithNeuralNetworkModelValidate = 0
         for i in range(numberOfFilesValidate):
@@ -422,9 +425,107 @@ elif neuralNetworkType == "2dimensional convnet":
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
     runId = "2d_config_2_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    # Model id for saving the model uniquely
+    modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
+    epochsCounter = 0
+    print("epochsCounter: " + str(epochsCounter))
 
-    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+    neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                            show_metric=True, run_id=runId)
+    # save model
+    neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+    # increment by trained epochs
+    epochsCounter = epochsTrainingInterval
+    print("epochsCounter: " + str(epochsCounter))
+
+    # duration calculation for initial training period
+    print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+    sumTotalDurationWithNeuralNetworkModelValidate = 0
+    for i in range(numberOfFilesValidate):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "neuralNetworkModel"
+        currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+        currentRunSimulation_input.decisionTool = neuralNetworkModel
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+    # calculates total duration for validation files
+    for i in range(numberOfFilesValidate):
+        sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+            indexFilesValidate[i]].totalDurationWithPolicy
+
+    # append number of trained epochs and the duration for this number of epochs to Records list
+    sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
+        [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+    # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
+    #                                                           -1 because NN has already been trained once with initial fit call
+    for i in range(int(numberOfEpochs / epochsTrainingInterval) - 1):
+        # load model
+        neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
+        # resume training
+        neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
+                               snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+                               show_metric=True, run_id=runId)
+
+        # save model
+        neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+        # Increment epochsCounter by number of trained epochs
+        epochsCounter = epochsCounter + epochsTrainingInterval
+
+        # Durations calculations
+        print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+        sumTotalDurationWithNeuralNetworkModelValidate = 0
+        for i in range(numberOfFilesValidate):
+            currentRunSimulation_input = runSimulation_input()
+            currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+            currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+            currentRunSimulation_input.timeDistribution = timeDistribution
+            currentRunSimulation_input.purpose = "testPolicy"
+            currentRunSimulation_input.randomDecisionProbability = 0
+            currentRunSimulation_input.policyType = "neuralNetworkModel"
+            currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+            currentRunSimulation_input.decisionTool = neuralNetworkModel
+            currentRunSimulation_input.numberOfResources = numberOfResources
+            currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+            currentRunSimulation_input.stateVectorLength = stateVectorLength
+            currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+            currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+            currentRunSimulation_input.numberOfActivities = numberOfActivities
+            currentRunSimulation_input.timeHorizon = timeHorizon
+            currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+            currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+            activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+        # Calculates total duration for validation files
+        for i in range(numberOfFilesValidate):
+            sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy
+
+        # Append number of trained epochs and the duration for this number of epochs to Records list
+        sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
+            [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+        print("epochsCounter: " + str(epochsCounter))
+
 
 # combination of a 1 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "1dimensional combined convnet":
@@ -462,11 +563,108 @@ elif neuralNetworkType == "1dimensional combined convnet":
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
     runId = "1d_combined_config_2_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    # Model id for saving the model uniquely
+    modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
+    epochsCounter = 0
+    print("epochsCounter: " + str(epochsCounter))
 
     neuralNetworkModel.fit({"input_currentState": states,
                             "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet), snapshot_epoch=True,
                            show_metric=True, run_id=runId)
+    # save model
+    neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+    # increment by trained epochs
+    epochsCounter = epochsTrainingInterval
+    print("epochsCounter: " + str(epochsCounter))
+
+    # duration calculation for initial training period
+    print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+    sumTotalDurationWithNeuralNetworkModelValidate = 0
+    for i in range(numberOfFilesValidate):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "neuralNetworkModel"
+        currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+        currentRunSimulation_input.decisionTool = neuralNetworkModel
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+    # calculates total duration for validation files
+    for i in range(numberOfFilesValidate):
+        sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+            indexFilesValidate[i]].totalDurationWithPolicy
+
+    # append number of trained epochs and the duration for this number of epochs to Records list
+    sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
+        [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+    # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
+    #                                                           -1 because NN has already been trained once with initial fit call
+    for i in range(int(numberOfEpochs / epochsTrainingInterval) - 1):
+        # load model
+        neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
+        # resume training
+        neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
+                               snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+                               show_metric=True, run_id=runId)
+
+        # save model
+        neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+        # Increment epochsCounter by number of trained epochs
+        epochsCounter = epochsCounter + epochsTrainingInterval
+
+        # Durations calculations
+        print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+        sumTotalDurationWithNeuralNetworkModelValidate = 0
+        for i in range(numberOfFilesValidate):
+            currentRunSimulation_input = runSimulation_input()
+            currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+            currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+            currentRunSimulation_input.timeDistribution = timeDistribution
+            currentRunSimulation_input.purpose = "testPolicy"
+            currentRunSimulation_input.randomDecisionProbability = 0
+            currentRunSimulation_input.policyType = "neuralNetworkModel"
+            currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+            currentRunSimulation_input.decisionTool = neuralNetworkModel
+            currentRunSimulation_input.numberOfResources = numberOfResources
+            currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+            currentRunSimulation_input.stateVectorLength = stateVectorLength
+            currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+            currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+            currentRunSimulation_input.numberOfActivities = numberOfActivities
+            currentRunSimulation_input.timeHorizon = timeHorizon
+            currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+            currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+            activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+        # Calculates total duration for validation files
+        for i in range(numberOfFilesValidate):
+            sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy
+
+        # Append number of trained epochs and the duration for this number of epochs to Records list
+        sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
+            [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+        print("epochsCounter: " + str(epochsCounter))
 
 # combination of a 2 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "2dimensional combined convnet":
@@ -504,11 +702,108 @@ elif neuralNetworkType == "2dimensional combined convnet":
         neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
     runId = "2d_combined_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    # Model id for saving the model uniquely
+    modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
+    epochsCounter = 0
+    print("epochsCounter: " + str(epochsCounter))
 
     neuralNetworkModel.fit({"input_currentState": states,
                            "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
                            {"targets": actions}, n_epoch=numberOfEpochs, snapshot_epoch=True, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
                            show_metric=True, run_id=runId)
+    # save model
+    neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+    # increment by trained epochs
+    epochsCounter = epochsTrainingInterval
+    print("epochsCounter: " + str(epochsCounter))
+
+    # duration calculation for initial training period
+    print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+    sumTotalDurationWithNeuralNetworkModelValidate = 0
+    for i in range(numberOfFilesValidate):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "neuralNetworkModel"
+        currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+        currentRunSimulation_input.decisionTool = neuralNetworkModel
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+    # calculates total duration for validation files
+    for i in range(numberOfFilesValidate):
+        sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+            indexFilesValidate[i]].totalDurationWithPolicy
+
+    # append number of trained epochs and the duration for this number of epochs to Records list
+    sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
+        [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+    # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
+    #                                                           -1 because NN has already been trained once with initial fit call
+    for i in range(int(numberOfEpochs / epochsTrainingInterval) - 1):
+        # load model
+        neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
+        # resume training
+        neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval,
+                               snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
+                               show_metric=True, run_id=runId)
+
+        # save model
+        neuralNetworkModel.save('./savedDNN/model' + modelId + '.tfl')
+        # Increment epochsCounter by number of trained epochs
+        epochsCounter = epochsCounter + epochsTrainingInterval
+
+        # Durations calculations
+        print('###### NEURAL NETWORK MODEL ON VALIDATE ACTIVITY SEQUENCES  ######')
+        sumTotalDurationWithNeuralNetworkModelValidate = 0
+        for i in range(numberOfFilesValidate):
+            currentRunSimulation_input = runSimulation_input()
+            currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+            currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+            currentRunSimulation_input.timeDistribution = timeDistribution
+            currentRunSimulation_input.purpose = "testPolicy"
+            currentRunSimulation_input.randomDecisionProbability = 0
+            currentRunSimulation_input.policyType = "neuralNetworkModel"
+            currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+            currentRunSimulation_input.decisionTool = neuralNetworkModel
+            currentRunSimulation_input.numberOfResources = numberOfResources
+            currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+            currentRunSimulation_input.stateVectorLength = stateVectorLength
+            currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+            currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+            currentRunSimulation_input.numberOfActivities = numberOfActivities
+            currentRunSimulation_input.timeHorizon = timeHorizon
+            currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+            currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+            activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+        # Calculates total duration for validation files
+        for i in range(numberOfFilesValidate):
+            sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[
+                indexFilesValidate[i]].totalDurationWithPolicy
+
+        # Append number of trained epochs and the duration for this number of epochs to Records list
+        sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
+            [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+        print("epochsCounter: " + str(epochsCounter))
 
 
 
@@ -766,7 +1061,7 @@ sumTotalDurationWithShortestSumDurationTrainRecord.append(sumTotalDurationWithSh
 
 ####  EVALUATION OF NN RESULTS OF VALIDATE ACTIVITY SEQUENCES  ####
 sumTotalDurationRandomValidate = 0
-sumTotalDurationWithNeuralNetworkModelValidate = 0
+#sumTotalDurationWithNeuralNetworkModelValidate = 0
 sumTotalDurationWithCriticalResourceValidate = 0
 sumTotalDurationWithShortestProcessingValidate = 0
 sumTotalDurationWithShortestSumDurationValidate = 0
@@ -774,14 +1069,14 @@ sumTotalDurationWithShortestSumDurationValidate = 0
 for i in range(numberOfFilesValidate):
     sumTotalDurationRandomValidate += activitySequences[indexFilesValidate[i]].totalDurationMean
     sumTotalDurationRandomValidate = round(sumTotalDurationRandomValidate,4)
-    sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[indexFilesValidate[i]].totalDurationWithPolicy
+    #sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[indexFilesValidate[i]].totalDurationWithPolicy
     sumTotalDurationWithCriticalResourceValidate += activitySequences[indexFilesValidate[i]].totalDurationWithCriticalResource
     sumTotalDurationWithShortestProcessingValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestProcessingTime
     sumTotalDurationWithShortestSumDurationValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestSumDuration
 
 
 sumTotalDurationRandomValidateRecord.append(sumTotalDurationRandomValidate)
-sumTotalDurationWithNeuralNetworkModelValidateRecord.append(sumTotalDurationWithNeuralNetworkModelValidate)
+#sumTotalDurationWithNeuralNetworkModelValidateRecord.append(sumTotalDurationWithNeuralNetworkModelValidate)
 sumTotalDurationWithCriticalResourceValidateRecord.append(sumTotalDurationWithCriticalResourceValidate)
 sumTotalDurationWithShortestProcessingValidateRecord.append(sumTotalDurationWithShortestProcessingValidate)
 sumTotalDurationWithShortestSumDurationValidateRecord.append(sumTotalDurationWithShortestSumDurationValidate)
@@ -794,7 +1089,7 @@ print("sumTotalDurationWithCriticalResourceTrain = " + str(sumTotalDurationWithC
 print("sumTotalDurationWithShortestProcessingTrain = " + str(sumTotalDurationWithShortestProcessingTrain))
 print("sumTotalDurationWithShortestSumDurationTrain = " + str(sumTotalDurationWithShortestSumDurationTrain))
 print("sumTotalDurationRandomValidate = " + str(sumTotalDurationRandomValidate))
-print("sumTotalDurationWithNeuralNetworkModelValidate = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
+#print("sumTotalDurationWithNeuralNetworkModelValidate = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
 print("sumTotalDurationWithCriticalResourceValidate = " + str(sumTotalDurationWithCriticalResourceValidate))
 print("sumTotalDurationWithShortestProcessingValidate = " + str(sumTotalDurationWithShortestProcessingValidate))
 print("sumTotalDurationWithShortestSumDurationValidate = " + str(sumTotalDurationWithShortestSumDurationValidate))
@@ -844,12 +1139,26 @@ ws['C5'].value = sumTotalDurationWithCriticalResourceTrain
 ws['D5'].value = sumTotalDurationWithShortestProcessingTrain
 ws['E5'].value = sumTotalDurationWithShortestSumDurationTrain
 ws['F5'].value = sumTotalDurationRandomValidate
-ws['G5'].value = sumTotalDurationWithNeuralNetworkModelValidate
+#ws['G5'].value = sumTotalDurationWithNeuralNetworkModelValidate
 ws['H5'].value = sumTotalDurationWithCriticalResourceValidate
 ws['I5'].value = sumTotalDurationWithShortestProcessingValidate
 ws['J5'].value = sumTotalDurationWithShortestSumDurationValidate
 
+ws['A7'] = 'Epochs:'
+ws['A8'] = 'DurationNNValidate'
+ws['A9'] = 'Percent. improv. NN vs. Random'
 
+for columnPos in range(len(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords)):
+    # epochs
+    ws.cell(column=2+columnPos, row=7, value=str(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][0]))
+    # durations
+    ws.cell(column=2+columnPos, row=8, value=str(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][1]))
+
+    # Calculate percentage improvement of NNValidateDuration vs RandomValidateDuration
+    percentageImprovement = round(100*(1 - (sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][1]/sumTotalDurationRandomValidate)), 2)
+    # write it in excel sheet
+    ws.cell(column=2+columnPos, row=9,
+            value=str(percentageImprovement))
 
 
 ws.column_dimensions['A'].width = 10.0
