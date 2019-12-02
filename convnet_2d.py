@@ -33,7 +33,6 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 #CONFIGURATION 2
-
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
