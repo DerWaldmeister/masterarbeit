@@ -50,10 +50,10 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 12000 #walk entire samples
-epochsTrainingInterval = 100
+numberOfEpochs = 500 #walk entire samples
+epochsTrainingInterval = 50
 # learning rate
-learningRate = 0.0001
+learningRate = 0.005
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -307,7 +307,7 @@ if neuralNetworkType == "1dimensional convnet":
     print("epochsCounter: " + str(epochsCounter))
 
     # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
-    for i in range(int(numberOfEpochs / epochsTrainingInterval)+1):
+    for i in range(int(numberOfEpochs / epochsTrainingInterval)):
         neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                                show_metric=True, run_id=runId)
 
@@ -379,14 +379,14 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    runId = "2d_config_2_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "2d_config_4_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # Model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
     print("epochsCounter: " + str(epochsCounter))
 
     # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
-    for i in range(int(numberOfEpochs / epochsTrainingInterval)+1):
+    for i in range(int(numberOfEpochs / epochsTrainingInterval)):
         neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                                show_metric=True, run_id=runId)
         # save model
@@ -477,7 +477,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
     print("epochsCounter: " + str(epochsCounter))
 
     # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
-    for i in range(int(numberOfEpochs / epochsTrainingInterval)+1):
+    for i in range(int(numberOfEpochs / epochsTrainingInterval)):
 
         neuralNetworkModel.fit({"input_currentState": states,
                                 "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
@@ -570,7 +570,7 @@ elif neuralNetworkType == "2dimensional combined convnet":
     print("epochsCounter: " + str(epochsCounter))
 
     # train neuralNet for epochsTrainingInterval number of epochs, calculate ValidateDuration afterwards
-    for i in range(int(numberOfEpochs / epochsTrainingInterval)+1):
+    for i in range(int(numberOfEpochs / epochsTrainingInterval)):
 
         neuralNetworkModel.fit({"input_currentState": states,
                                "input_futureResourceUtilisationMatrix": futureResourceUtilisationMatrices},
