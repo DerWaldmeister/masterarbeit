@@ -87,7 +87,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 #CONFIGURATION 4
-
+'''
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -114,10 +114,10 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-
+'''
 
 #CONFIGURATION 4a
-'''
+
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -125,7 +125,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     convnet = input_data(shape=[None, input_size, input_size,1], name='input_currentState')
 
-    tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.9)
+    #tflearn.init_graph(num_cores=1, gpu_memory_fraction=0.9)
 
     convnet = conv_2d(convnet, nb_filter=16, filter_size=3, strides=1, padding='valid', activation='relu')
     convnet = max_pool_2d(convnet, kernel_size=2, strides=2, padding='valid')
@@ -145,4 +145,3 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     return model
 
-'''
