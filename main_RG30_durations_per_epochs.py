@@ -50,10 +50,10 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 4000 #walk entire samples
+numberOfEpochs = 800 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.001
+learningRate = 0.00001
 
 # paths
 relativePath = os.path.dirname(__file__)
