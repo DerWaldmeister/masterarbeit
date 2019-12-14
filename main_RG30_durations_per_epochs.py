@@ -53,7 +53,8 @@ neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 3000 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.00001
+learningRate = 0.0005
+
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -379,7 +380,7 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    runId = "2d_config_8_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "2d_config_9_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # Model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
