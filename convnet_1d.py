@@ -37,7 +37,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
 
 #CONFIGURATION 2
-
+'''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -63,10 +63,10 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-
+'''
 
 #CONFIGURATION 3
-'''
+
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -77,12 +77,12 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = input_data(shape=[None, input_size], name='input_currentState')
     convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)
 
-    convnet = conv_1d(convnet, nb_filter=16, filter_size=6, strides=1, padding='valid', activation='relu')
+    convnet = conv_1d(convnet, nb_filter=16, filter_size=3, strides=1, padding='valid', activation='relu')
     convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
 
     convnet = flatten(convnet)
 
-    convnet = fully_connected(convnet, n_units=256, weights_init='truncated_normal', activation='relu')
+    convnet = fully_connected(convnet, n_units=512, weights_init='truncated_normal', activation='relu')
     convnet = dropout(convnet, 0.5)
 
     convnet = fully_connected(convnet, n_units=output_size, activation='softmax')
@@ -92,7 +92,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-'''
+
 
 #CONFIGURATION 4
 '''
