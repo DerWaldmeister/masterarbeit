@@ -80,6 +80,9 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = conv_1d(convnet, nb_filter=16, filter_size=3, strides=1, padding='valid', activation='relu')
     convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
 
+    convnet = conv_1d(convnet, nb_filter=32, filter_size=3, strides=1, padding='valid', activation='relu')
+    convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
+
     convnet = flatten(convnet)
 
     convnet = fully_connected(convnet, n_units=512, weights_init='truncated_normal', activation='relu')
