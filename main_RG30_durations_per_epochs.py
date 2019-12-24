@@ -53,7 +53,8 @@ neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 2000 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.001
+learningRate = 0.00001
+
 
 
 # paths
