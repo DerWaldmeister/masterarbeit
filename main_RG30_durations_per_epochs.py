@@ -40,7 +40,7 @@ numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "1dimensional convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional combined convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -53,9 +53,7 @@ neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 2000 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.00001
-
-
+learningRate = 0.00005
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -169,7 +167,6 @@ actionsValidationSet = []
 futureResourceUtilisationMatricesValidationSet = []
 sumTotalDurationRandomValidateRecord = []
 sumTotalDurationWithNeuralNetworkModelValidateRecord = []
-#NEW:
 sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords = []
 sumTotalDurationWithCriticalResourceValidateRecord = []
 sumTotalDurationWithShortestProcessingValidateRecord = []
@@ -440,7 +437,7 @@ elif neuralNetworkType == "2dimensional convnet":
 
 # combination of a 1 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "1dimensional combined convnet":
-    # Turn futureResourceUtilisationMatrices into tuples
+    # Turn futureResourceUtilisationMatrices into tuples and reshape afterwards
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
     # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
     futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
@@ -472,7 +469,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    runId = "1d_combined_config_2_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_combined_config_2a_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # Model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
@@ -486,8 +483,8 @@ elif neuralNetworkType == "1dimensional combined convnet":
                                {"targets": actions}, n_epoch=epochsTrainingInterval, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet), snapshot_epoch=True,
                                show_metric=True, run_id=runId)
 
-        # increment by trained epochs
-        epochsCounter = epochsTrainingInterval
+        # Increment epochsCounter by number of trained epochs
+        epochsCounter = epochsCounter + epochsTrainingInterval
         print("epochsCounter: " + str(epochsCounter))
 
         # save model
@@ -579,8 +576,8 @@ elif neuralNetworkType == "2dimensional combined convnet":
                                {"targets": actions}, n_epoch=epochsTrainingInterval, snapshot_epoch=True, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
                                show_metric=True, run_id=runId)
 
-        # increment by trained epochs
-        epochsCounter = epochsTrainingInterval
+        # Increment epochsCounter by number of trained epochs
+        epochsCounter = epochsCounter + epochsTrainingInterval
         print("epochsCounter: " + str(epochsCounter))
 
         # save model
