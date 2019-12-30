@@ -53,7 +53,7 @@ neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 2000 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.00005
+learningRate = 0.0005
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -469,7 +469,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    runId = "1d_combined_config_2a_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_combined_config_2c_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # Model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
