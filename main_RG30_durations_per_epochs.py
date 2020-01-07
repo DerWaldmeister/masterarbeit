@@ -471,7 +471,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    runId = "1d_combined_config_4a_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_combined_config_4b_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # Model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
