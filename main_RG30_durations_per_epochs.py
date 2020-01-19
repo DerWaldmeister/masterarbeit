@@ -53,7 +53,7 @@ neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 4000 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.001
+learningRate = 0.0001
 
 # paths
 relativePath = os.path.dirname(__file__)
