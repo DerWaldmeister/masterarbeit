@@ -16,8 +16,7 @@ from datetime import datetime
 import multiprocessing as mp
 from openpyxl import Workbook
 from openpyxl.styles import Border, Alignment, Side
-from monitorCallback import MonitorCallback
-from fitNeuralNet import fit1DimensionalConvnet
+
 
 t_start = time.time()
 
