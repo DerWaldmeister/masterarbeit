@@ -57,8 +57,8 @@ numberOfEpochs = 40  # walk entire samples
 epochsTrainingInterval = 10
 learningRate = 0.01
 
-# test the model on test set?
-testModelOnTestSet = False
+# test the model on test set
+testModelOnTestSet = True
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -156,13 +156,14 @@ actionsValidationSet = []
 futureResourceUtilisationMatricesValidationSet = []
 # actionsPossibilities = []
 
-# TEST
-sumTotalDurationRandomTest = []
-sumTotalDurationWithNeuralNetworkModelTest = []
-sumTotalDurationWithCriticalResourceTest = []
-sumTotalDurationWithShortestProcessingTest = []
-sumTotalDurationWithShortestSumDurationTest = []
+# test durations
+sumTotalDurationRandomTest = 0
+sumTotalDurationWithNeuralNetworkModelTest = 0
+sumTotalDurationWithCriticalResourceTest = 0
+sumTotalDurationWithShortestProcessingTest = 0
+sumTotalDurationWithShortestSumDurationTest = 0
 
+#
 sumTotalDurationRandomValidateRecord = []
 sumTotalDurationWithNeuralNetworkModelValidateRecord = []
 sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords = []
@@ -763,12 +764,12 @@ if testModelOnTestSet:
         currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
         activitySequences[indexFilesTest[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
-    '''
-    # calculates total duration for validation files
+
+    # calculates total duration for test files
     for i in range(numberOfFilesTest):
         sumTotalDurationWithNeuralNetworkModelTest += activitySequences[
             indexFilesTest[i]].totalDurationWithPolicy
-    '''
+
 
 
 
@@ -796,14 +797,16 @@ if testModelOnTestSet:
 
         currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
-        activitySequences[indexFilesTest[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+        activitySequences[indexFilesTest[i]].totalDurationMean = currentRunSimulation_output.totalDurationMean
+        print("activitySequences[indexFilesTest[i]].totalDurationWithMean: " + str(activitySequences[indexFilesTest[i]].totalDurationMean))
+        print("activitySequences[indexFilesTest[i]].totalDurationWithPolicy: " + str(activitySequences[indexFilesTest[i]].totalDurationWithPolicy))
 
-    '''
+
     # calculates total duration for test files
     for i in range(numberOfFilesTest):
         sumTotalDurationRandomTest += activitySequences[
-            indexFilesTest[i]].totalDurationWithPolicy
-    '''
+            indexFilesTest[i]].totalDurationMean
+
 
 
     # CRITICAL RESOURCE
@@ -837,7 +840,7 @@ if testModelOnTestSet:
     print('###### SHORTEST PROCESSING TIME METHOD ON TEST ACTIVITY SEQUENCES  ######')
     for i in range(numberOfFilesTest):
         currentRunSimulation_input = runSimulation_input()
-        currentRunSimulation_input.activitySequence = activitySequences[indexFilesValidate[i]]
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
         currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
         currentRunSimulation_input.timeDistribution = timeDistribution
         currentRunSimulation_input.purpose = "testPolicy"
@@ -946,6 +949,8 @@ if testModelOnTestSet:
     sumTotalDurationWithShortestSumDurationTest = 0
 
     for i in range(numberOfFilesTest):
+        print("sumTotalDurationRandomTest: " + str(sumTotalDurationRandomTest))
+        print("activitySequences[indexFilesTest[i]].totalDurationMean: " + str(activitySequences[indexFilesTest[i]].totalDurationMean))
         sumTotalDurationRandomTest += activitySequences[indexFilesTest[i]].totalDurationMean
         sumTotalDurationRandomTest = round(sumTotalDurationRandomTest,4)
         sumTotalDurationWithNeuralNetworkModelTest += activitySequences[indexFilesTest[i]].totalDurationWithPolicy

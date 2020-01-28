@@ -32,7 +32,7 @@ maxTasksPerChildToGenerateData = 4        # 4 is the best for paoloPC
 
 # input state vector  parameters
 numberOfActivitiesInStateVector = 6
-rescaleFactorTime = 0.001
+rescaleFactorTime = 0.1
 timeHorizon = 10
 
 # random generation parameters

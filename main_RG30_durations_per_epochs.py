@@ -40,8 +40,8 @@ numberOfSimulationRunsToGenerateData =2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "2dimensional combined convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
-# for 1dimensional convnet and 2dimesnional convnet futureResourceUtilisation wont be used
+neuralNetworkType = "1dimensional convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+# for 1dimensional convnet and 2dimensional convnet futureResourceUtilisation will not be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
     useFutureResourceUtilisation = True
@@ -50,10 +50,13 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 4000 #walk entire samples
-epochsTrainingInterval = 100
+numberOfEpochs = 50 #walk entire samples
+epochsTrainingInterval = 10
 # learning rate
-learningRate = 0.00001
+learningRate = 0.01
+
+# test the model on test set
+testModelOnTestSet = True
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -176,6 +179,13 @@ sumTotalDurationWithNeuralNetworkModelTrainRecord = []
 sumTotalDurationWithCriticalResourceTrainRecord = []
 sumTotalDurationWithShortestProcessingTrainRecord = []
 sumTotalDurationWithShortestSumDurationTrainRecord = []
+
+# test durations
+sumTotalDurationRandomTest = 0
+sumTotalDurationWithNeuralNetworkModelTest = 0
+sumTotalDurationWithCriticalResourceTest = 0
+sumTotalDurationWithShortestProcessingTest = 0
+sumTotalDurationWithShortestSumDurationTest = 0
 #sumTotalDurationRandomTestRecord = []
 #sumTotalDurationWithNeuralNetworkModelTestRecord = []
 #sumTotalDurationWithCriticalResourceTestRecord = []
@@ -226,7 +236,6 @@ for i in range(numberOfFilesTrain):
     for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
         states.append(currentStateActionPair.state)
         actions.append(currentStateActionPair.action)
-        # NEW:
         futureResourceUtilisationMatrices.append(currentStateActionPair.futureResourceUtilisationMatrix)
 
 
@@ -300,7 +309,7 @@ if neuralNetworkType == "1dimensional convnet":
         # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
     # RunId for simulation run
-    runId = "1d_config_4_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_config_5_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # Model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
@@ -623,6 +632,44 @@ elif neuralNetworkType == "2dimensional combined convnet":
         # load model
         neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
 
+
+#### RANDOM DECISION ON TEST ACTIVITY SEQUENCES ####
+if testModelOnTestSet:
+    # RANDOM DECISION
+    print('######  RANDOM DECISION ON TEST ACTIVITY SEQUENCES  ######')
+    runSimulation_inputs = []
+    for i in range(numberOfFilesTest):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 1
+        currentRunSimulation_input.policyType = None
+        currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+        currentRunSimulation_input.decisionTool = None
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[indexFilesTest[i]].totalDurationMean = currentRunSimulation_output.totalDurationMean
+        print("activitySequences[indexFilesTest[i]].totalDurationWithMean: " + str(
+            activitySequences[indexFilesTest[i]].totalDurationMean))
+
+
+    # calculates total duration for test files
+    for i in range(numberOfFilesTest):
+        sumTotalDurationRandomTest += activitySequences[
+            indexFilesTest[i]].totalDurationMean
+
+
 #-----------------------------------------------------------------NeuralNet------------------------------------------------------------------------------
 ####  TEST NEURAL NETWORK MODEL ON TRAIN ACTIVITY SEQUENCES  ####
 # run simulations with neural network model as decision tool (not possible to use multiprocessing -> apparently is not possible to parallelize processes on GPU)
@@ -649,6 +696,41 @@ for i in range(numberOfFilesTrain):
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
     activitySequences[indexFilesTrain[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+
+####  TEST NEURAL NETWORK MODEL ON TEST ACTIVITY SEQUENCES  ####
+if testModelOnTestSet:
+    print('###### NEURAL NETWORK MODEL ON TEST ACTIVITY SEQUENCES  ######')
+    sumTotalDurationWithNeuralNetworkModelValidate = 0
+    for i in range(numberOfFilesTest):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "neuralNetworkModel"
+        currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+        currentRunSimulation_input.decisionTool = neuralNetworkModel
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[indexFilesTest[i]].totalDurationWithPolicy = currentRunSimulation_output.totalDurationMean
+
+    # calculates total duration for test files
+    for i in range(numberOfFilesTest):
+        sumTotalDurationWithNeuralNetworkModelTest += activitySequences[
+            indexFilesTest[i]].totalDurationWithPolicy
+
+
 
 # Xiaolei: Critical Resource, Shortest Processing Time, shortest sumDuration including successor
 
@@ -710,6 +792,33 @@ for i in range(numberOfFilesValidate):
 
     activitySequences[indexFilesValidate[i]].totalDurationWithCriticalResource = currentRunSimulation_output.totalDurationMean
 
+if testModelOnTestSet:
+    print('###### CRITICAL RESOURCE METHOD ON TEST ACTIVITY SEQUENCES  ######')
+    for i in range(numberOfFilesTest):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "most critical resource"
+        currentRunSimulation_input.neuralNetworkType = None
+        currentRunSimulation_input.decisionTool = None
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[
+            indexFilesTest[i]].totalDurationWithCriticalResource = currentRunSimulation_output.totalDurationMean
+
+
 # ---------------------------------------------------------Shortest Processing Time----------------------------------------------------------------------------
 ####  TEST SHORTEST PROCESSING TIME METHOD ON TRAIN ACTIVITY SEQUENCES  ####
 print('###### SHORTEST PROCESSING TIME METHOD ON TRAIN ACTIVITY SEQUENCES  ######')
@@ -766,6 +875,33 @@ for i in range(numberOfFilesValidate):
     currentRunSimulation_output = runSimulation(currentRunSimulation_input)
 
     activitySequences[indexFilesValidate[i]].totalDurationWithShortestProcessingTime = currentRunSimulation_output.totalDurationMean
+
+if testModelOnTestSet:
+    print('###### SHORTEST PROCESSING TIME METHOD ON TEST ACTIVITY SEQUENCES  ######')
+    for i in range(numberOfFilesTest):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "shortest processing time"
+        currentRunSimulation_input.neuralNetworkType = None
+        currentRunSimulation_input.decisionTool = None
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[
+            indexFilesTest[
+                i]].totalDurationWithShortestProcessingTime = currentRunSimulation_output.totalDurationMean
 
  # ---------------------------------------------------------shortest sumDuration including successor----------------------------------------------------------------------------
 ####  TEST SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON TRAIN ACTIVITY SEQUENCES  ####
@@ -824,6 +960,33 @@ for i in range(numberOfFilesValidate):
 
     activitySequences[indexFilesValidate[i]].totalDurationWithShortestSumDuration = currentRunSimulation_output.totalDurationMean
 
+if testModelOnTestSet:
+    print('###### SHORTEST SUMDURATION INCLUDING SUCCESSOR METHOD ON TEST ACTIVITY SEQUENCES  ######')
+    for i in range(numberOfFilesTest):
+        currentRunSimulation_input = runSimulation_input()
+        currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+        currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToTestPolicy
+        currentRunSimulation_input.timeDistribution = timeDistribution
+        currentRunSimulation_input.purpose = "testPolicy"
+        currentRunSimulation_input.randomDecisionProbability = 0
+        currentRunSimulation_input.policyType = "shortest sumDuration including successor"
+        currentRunSimulation_input.neuralNetworkType = None
+        currentRunSimulation_input.decisionTool = None
+        currentRunSimulation_input.numberOfResources = numberOfResources
+        currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+        currentRunSimulation_input.stateVectorLength = stateVectorLength
+        currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+        currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+        currentRunSimulation_input.numberOfActivities = numberOfActivities
+        currentRunSimulation_input.timeHorizon = timeHorizon
+        currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+
+        activitySequences[
+            indexFilesTest[i]].totalDurationWithShortestSumDuration = currentRunSimulation_output.totalDurationMean
+
+
 #------------------------------------------------------EVALUATION-----------------------------------------------------------------------------
 ####  EVALUATION OF RESULTS OF TRAIN ACTIVITY SEQUENCES  ####
 sumTotalDurationRandomTrain = 0
@@ -867,6 +1030,27 @@ sumTotalDurationRandomValidateRecord.append(sumTotalDurationRandomValidate)
 sumTotalDurationWithCriticalResourceValidateRecord.append(sumTotalDurationWithCriticalResourceValidate)
 sumTotalDurationWithShortestProcessingValidateRecord.append(sumTotalDurationWithShortestProcessingValidate)
 sumTotalDurationWithShortestSumDurationValidateRecord.append(sumTotalDurationWithShortestSumDurationValidate)
+
+
+####  EVALUATION OF DURATIONS OF TEST ACTIVITY SEQUENCES  ####
+if testModelOnTestSet:
+    sumTotalDurationRandomTest = 0
+    sumTotalDurationWithNeuralNetworkModelTest = 0
+    sumTotalDurationWithCriticalResourceTest = 0
+    sumTotalDurationWithShortestProcessingTest = 0
+    sumTotalDurationWithShortestSumDurationTest = 0
+
+    for i in range(numberOfFilesTest):
+        #print("sumTotalDurationRandomTest: " + str(sumTotalDurationRandomTest))
+        #print("activitySequences[indexFilesTest[i]].totalDurationMean: " + str(activitySequences[indexFilesTest[i]].totalDurationMean))
+        sumTotalDurationRandomTest += activitySequences[indexFilesTest[i]].totalDurationMean
+        sumTotalDurationRandomTest = round(sumTotalDurationRandomTest,4)
+        sumTotalDurationWithNeuralNetworkModelTest += activitySequences[indexFilesTest[i]].totalDurationWithPolicy
+        sumTotalDurationWithCriticalResourceTest += activitySequences[indexFilesTest[i]].totalDurationWithCriticalResource
+        sumTotalDurationWithShortestProcessingTest += activitySequences[indexFilesTest[i]].totalDurationWithShortestProcessingTime
+        sumTotalDurationWithShortestSumDurationTest += activitySequences[indexFilesTest[i]].totalDurationWithShortestSumDuration
+
+
 
 
 print("neuralNetworkType: " + neuralNetworkType)
@@ -946,6 +1130,21 @@ for columnPos in range(len(sumTotalDurationsPerEpochsWithNeuralNetworkModelValid
     # write it in excel sheet
     ws.cell(column=2+columnPos, row=9,
             value=str(percentageImprovement))
+
+
+if testModelOnTestSet:
+    ws['A11'] = 'durations on test set'
+    ws['A12'] = 'Random'
+    ws['B12'] = 'NeuralNetworkModel'
+    ws['C12'] = 'CriticalResource'
+    ws['D12'] = 'ShortestProcessing'
+    ws['E12'] = 'ShortestSumDuration'
+
+    ws['A13'].value = sumTotalDurationRandomTest
+    ws['B13'].value = sumTotalDurationWithNeuralNetworkModelTest
+    ws['C13'].value = sumTotalDurationWithCriticalResourceTest
+    ws['D13'].value = sumTotalDurationWithShortestProcessingTest
+    ws['E13'].value = sumTotalDurationWithShortestSumDurationTest
 
 
 ws.column_dimensions['A'].width = 10.0
