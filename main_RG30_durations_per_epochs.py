@@ -168,6 +168,8 @@ futureResourceUtilisationMatrices = []
 statesValidationSet = []
 actionsValidationSet = []
 futureResourceUtilisationMatricesValidationSet = []
+
+# duration records validation and training set
 sumTotalDurationRandomValidateRecord = []
 sumTotalDurationWithNeuralNetworkModelValidateRecord = []
 sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords = []
@@ -186,11 +188,6 @@ sumTotalDurationWithNeuralNetworkModelTest = 0
 sumTotalDurationWithCriticalResourceTest = 0
 sumTotalDurationWithShortestProcessingTest = 0
 sumTotalDurationWithShortestSumDurationTest = 0
-#sumTotalDurationRandomTestRecord = []
-#sumTotalDurationWithNeuralNetworkModelTestRecord = []
-#sumTotalDurationWithCriticalResourceTestRecord = []
-#sumTotalDurationWithShortestProcessingTestRecord = []
-#sumTotalDurationWithShortestSumDurationTestRecord = []
 
 
 #--------------------------------------------------------------RANDOM-----------------------------------------------------------------------------
@@ -222,8 +219,8 @@ for i in range(numberOfFilesTrain):
 pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
 
 runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
-# assign simulation results to activity sequences and append training data
 
+# assign simulation results to activity sequences and append training data
 for i in range(numberOfFilesTrain):
     activitySequences[indexFilesTrain[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
     activitySequences[indexFilesTrain[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
@@ -238,10 +235,6 @@ for i in range(numberOfFilesTrain):
         actions.append(currentStateActionPair.action)
         futureResourceUtilisationMatrices.append(currentStateActionPair.futureResourceUtilisationMatrix)
 
-
-#correspondence best states and actions pairs --> len(states) = len(actions)
-#print('state',states)
-#print('actions:',actions)
 
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATION ACTIVITY SEQUENCES  ####
 print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')
@@ -270,8 +263,8 @@ for i in range(numberOfFilesValidate):
 pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
 
 runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
-# assign simulation results to activity sequences
 
+# assign simulation results to activity sequences
 for i in range(numberOfFilesValidate):
     activitySequences[indexFilesValidate[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
     activitySequences[indexFilesValidate[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
@@ -303,14 +296,14 @@ if neuralNetworkType == "1dimensional convnet":
 
         else:
             neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-            # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+
     else:
         neuralNetworkModel = create1dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
-        # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
 
-    # RunId for simulation run
+
+    # runId for simulation run
     runId = "1d_config_5_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
-    # Model id for saving the model uniquely
+    # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
     print("epochsCounter: " + str(epochsCounter))
@@ -320,7 +313,7 @@ if neuralNetworkType == "1dimensional convnet":
         neuralNetworkModel.fit({"input_currentState": states}, {"targets": actions}, n_epoch=epochsTrainingInterval, snapshot_epoch=True, validation_set=(statesValidationSet, actionsValidationSet),
                                show_metric=True, run_id=runId)
 
-        # Increment epochsCounter by number of trained epochs
+        # increment epochsCounter by number of trained epochs
         epochsCounter = epochsCounter + epochsTrainingInterval
         print("epochsCounter: " + str(epochsCounter))
 
@@ -389,7 +382,7 @@ elif neuralNetworkType == "2dimensional convnet":
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
     runId = "2d_config_9_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
-    # Model id for saving the model uniquely
+    # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
     print("epochsCounter: " + str(epochsCounter))
@@ -472,16 +465,16 @@ elif neuralNetworkType == "1dimensional combined convnet":
                                                                                                            futureResourceUtilisationMatrices[
                                                                                                                0]), len(
                     futureResourceUtilisationMatrices[0][0]))
-            # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+
     else:
         neuralNetworkModel = createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),
                                                                                                    len(actions[0]),
                                                                                                    learningRate, len(
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
-        # neuralNetworkModel = createNeuralNetworkModel(len(states[0]), len(actionsPossibilities[0]), learningRate)
+
 
     runId = "1d_combined_config_4c_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
-    # Model id for saving the model uniquely
+    # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
     print("epochsCounter: " + str(epochsCounter))
@@ -494,7 +487,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
                                {"targets": actions}, n_epoch=epochsTrainingInterval, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet), snapshot_epoch=True,
                                show_metric=True, run_id=runId)
 
-        # Increment epochsCounter by number of trained epochs
+        # increment epochsCounter by number of trained epochs
         epochsCounter = epochsCounter + epochsTrainingInterval
         print("epochsCounter: " + str(epochsCounter))
 
@@ -542,22 +535,22 @@ elif neuralNetworkType == "1dimensional combined convnet":
 
 # combination of a 2 dimensional convnet for current state and a 2 dimensional convnet for resourceUtilisationMatrix
 elif neuralNetworkType == "2dimensional combined convnet":
-    # Turn states list into tuples
+    # turn states list into tuples
     states = np.asarray(states)
-    # Reshape states
+    # reshape states
     states = states.reshape([-1, len(states[0]), len(states[0]), 1])
 
-    # Reshape validation states
+    # reshape validation states
     statesValidationSet = np.asarray(statesValidationSet)
     statesValidationSet = statesValidationSet.reshape([-1, len(statesValidationSet[0]), len(statesValidationSet[0]), 1])
 
-    # Turn futureResourceUtilisationMatrices into tuples
+    # turn futureResourceUtilisationMatrices into tuples
     futureResourceUtilisationMatrices = np.asarray(futureResourceUtilisationMatrices)
-    # Reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
+    # reshape futureResourceUtilisationMatrices, -1: batch_size, height(=rows):len(futureResourceUtilisationMatrices[0]), width(=columns): len(futureResourceUtilisationMatrices[0][0]), channels: 1
     futureResourceUtilisationMatrices = futureResourceUtilisationMatrices.reshape(
         [-1, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]), 1])
 
-    # Turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
+    # turn futureResourceUtilisationMatricesValidationSet into tuples and reshape afterwards
     futureResourceUtilisationMatricesValidationSet = np.asarray(futureResourceUtilisationMatricesValidationSet)
     futureResourceUtilisationMatricesValidationSet = futureResourceUtilisationMatricesValidationSet.reshape(
         [-1, len(futureResourceUtilisationMatricesValidationSet[0]),
@@ -574,7 +567,7 @@ elif neuralNetworkType == "2dimensional combined convnet":
         neuralNetworkModel = createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(len(states[0]),len(actions[0]),learningRate, len(futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
     runId = "2d_combined_config_9a2_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
-    # Model id for saving the model uniquely
+    # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
     print("epochsCounter: " + str(epochsCounter))
@@ -587,7 +580,7 @@ elif neuralNetworkType == "2dimensional combined convnet":
                                {"targets": actions}, n_epoch=epochsTrainingInterval, snapshot_epoch=True, validation_set=([statesValidationSet, futureResourceUtilisationMatricesValidationSet], actionsValidationSet),
                                show_metric=True, run_id=runId)
 
-        # Increment epochsCounter by number of trained epochs
+        # increment epochsCounter by number of trained epochs
         epochsCounter = epochsCounter + epochsTrainingInterval
         print("epochsCounter: " + str(epochsCounter))
 
@@ -732,7 +725,7 @@ if testModelOnTestSet:
 
 
 
-# Xiaolei: Critical Resource, Shortest Processing Time, shortest sumDuration including successor
+# code for priority rules from: https://github.com/leiiiiii/RCPSP/blob/master/Env.py
 
 #---------------------------------------------------------Critical Resource----------------------------------------------------------------------------
     ####  TEST CRITICAL RESOURCE METHOD ON TRAIN ACTIVITY SEQUENCES  ####
@@ -1011,7 +1004,6 @@ sumTotalDurationWithShortestSumDurationTrainRecord.append(sumTotalDurationWithSh
 
 ####  EVALUATION OF NN RESULTS OF VALIDATE ACTIVITY SEQUENCES  ####
 sumTotalDurationRandomValidate = 0
-#sumTotalDurationWithNeuralNetworkModelValidate = 0
 sumTotalDurationWithCriticalResourceValidate = 0
 sumTotalDurationWithShortestProcessingValidate = 0
 sumTotalDurationWithShortestSumDurationValidate = 0
@@ -1019,14 +1011,12 @@ sumTotalDurationWithShortestSumDurationValidate = 0
 for i in range(numberOfFilesValidate):
     sumTotalDurationRandomValidate += activitySequences[indexFilesValidate[i]].totalDurationMean
     sumTotalDurationRandomValidate = round(sumTotalDurationRandomValidate,4)
-    #sumTotalDurationWithNeuralNetworkModelValidate += activitySequences[indexFilesValidate[i]].totalDurationWithPolicy
     sumTotalDurationWithCriticalResourceValidate += activitySequences[indexFilesValidate[i]].totalDurationWithCriticalResource
     sumTotalDurationWithShortestProcessingValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestProcessingTime
     sumTotalDurationWithShortestSumDurationValidate += activitySequences[indexFilesValidate[i]].totalDurationWithShortestSumDuration
 
 
 sumTotalDurationRandomValidateRecord.append(sumTotalDurationRandomValidate)
-#sumTotalDurationWithNeuralNetworkModelValidateRecord.append(sumTotalDurationWithNeuralNetworkModelValidate)
 sumTotalDurationWithCriticalResourceValidateRecord.append(sumTotalDurationWithCriticalResourceValidate)
 sumTotalDurationWithShortestProcessingValidateRecord.append(sumTotalDurationWithShortestProcessingValidate)
 sumTotalDurationWithShortestSumDurationValidateRecord.append(sumTotalDurationWithShortestSumDurationValidate)
@@ -1041,8 +1031,6 @@ if testModelOnTestSet:
     sumTotalDurationWithShortestSumDurationTest = 0
 
     for i in range(numberOfFilesTest):
-        #print("sumTotalDurationRandomTest: " + str(sumTotalDurationRandomTest))
-        #print("activitySequences[indexFilesTest[i]].totalDurationMean: " + str(activitySequences[indexFilesTest[i]].totalDurationMean))
         sumTotalDurationRandomTest += activitySequences[indexFilesTest[i]].totalDurationMean
         sumTotalDurationRandomTest = round(sumTotalDurationRandomTest,4)
         sumTotalDurationWithNeuralNetworkModelTest += activitySequences[indexFilesTest[i]].totalDurationWithPolicy
@@ -1060,11 +1048,10 @@ print("sumTotalDurationWithCriticalResourceTrain = " + str(sumTotalDurationWithC
 print("sumTotalDurationWithShortestProcessingTrain = " + str(sumTotalDurationWithShortestProcessingTrain))
 print("sumTotalDurationWithShortestSumDurationTrain = " + str(sumTotalDurationWithShortestSumDurationTrain))
 print("sumTotalDurationRandomValidate = " + str(sumTotalDurationRandomValidate))
-#print("sumTotalDurationWithNeuralNetworkModelValidate = " + str(sumTotalDurationWithNeuralNetworkModelValidate))
 print("sumTotalDurationWithCriticalResourceValidate = " + str(sumTotalDurationWithCriticalResourceValidate))
 print("sumTotalDurationWithShortestProcessingValidate = " + str(sumTotalDurationWithShortestProcessingValidate))
 print("sumTotalDurationWithShortestSumDurationValidate = " + str(sumTotalDurationWithShortestSumDurationValidate))
-
+# results on test set activities are written into excel sheet
 
 # compute computation time
 t_end = time.time()
@@ -1072,7 +1059,7 @@ t_computation = t_end - t_start
 print("t_computation = " + str(t_computation))
 
 
-#write ouput to excel
+# write ouput to excel
 wb = Workbook()
 ws = wb.create_sheet('Durations_rg30',0)
 
@@ -1110,7 +1097,6 @@ ws['C5'].value = sumTotalDurationWithCriticalResourceTrain
 ws['D5'].value = sumTotalDurationWithShortestProcessingTrain
 ws['E5'].value = sumTotalDurationWithShortestSumDurationTrain
 ws['F5'].value = sumTotalDurationRandomValidate
-#ws['G5'].value = sumTotalDurationWithNeuralNetworkModelValidate
 ws['H5'].value = sumTotalDurationWithCriticalResourceValidate
 ws['I5'].value = sumTotalDurationWithShortestProcessingValidate
 ws['J5'].value = sumTotalDurationWithShortestSumDurationValidate
@@ -1125,13 +1111,13 @@ for columnPos in range(len(sumTotalDurationsPerEpochsWithNeuralNetworkModelValid
     # durations
     ws.cell(column=2+columnPos, row=8, value=str(sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][1]))
 
-    # Calculate percentage improvement of NNValidateDuration vs RandomValidateDuration
+    # calculate percentage improvement of NNValidateDuration vs RandomValidateDuration
     percentageImprovement = round(100*(1 - (sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords[columnPos][1]/sumTotalDurationRandomValidate)), 2)
     # write it in excel sheet
     ws.cell(column=2+columnPos, row=9,
             value=str(percentageImprovement))
 
-
+# durations on test set
 if testModelOnTestSet:
     ws['A11'] = 'durations on test set'
     ws['A12'] = 'Random'

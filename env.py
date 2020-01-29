@@ -2,7 +2,7 @@ import random
 import statistics as st
 from itertools import chain, combinations
 import numpy as np
-import itertools
+
 
 def powerset(listOfElements):
     s = list(listOfElements)
@@ -108,7 +108,6 @@ def runSimulation(runSimulation_input):
     timeHorizon = runSimulation_input.timeHorizon
     useFutureResourceUtilisation = runSimulation_input.useFutureResourceUtilisation
 
-    #print("numberOfSimulationRuns: " + str(numberOfSimulationRuns))
 
     print("start " + str(currentActivitySequence.fileName[:-4]))
     # print('------------------------------------------------------------------------------------------')
@@ -228,8 +227,6 @@ def runSimulation(runSimulation_input):
                 for i in range(len(indexReadyToStartActivitiesInState)):
                     activityConversionVector[i] = indexReadyToStartActivitiesInState[i]
 
-            # Xiaolei: policy types "shortest processing time" and "shortest sumDuration including successor"
-
             else:
                 # code for this policy type from: https://github.com/leiiiiii/RCPSP/blob/master/Env.py
                 if policyType == "shortest processing time":
@@ -303,7 +300,7 @@ def runSimulation(runSimulation_input):
                     activityConversionVector = indexActivitiesGlobal_reordered
 
             # 1.4 normalized state vector and matrix are created
-            # NEW: trivial decision check before neural network type check
+            # trivial decision check before neural network type check
             if trivialDecision == False:
                 # distinguish between 1dimensional convnet and 2dimensional convnet (vector vs matrix)
                 if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == None:
@@ -348,7 +345,7 @@ def runSimulation(runSimulation_input):
                                 currentActivitySequence.totalResources[resourceConversionVector[j]]
 
                         # multiply the currentState_readyToStartActivities vector with its transpose vector in order to get a matrix
-                        # currentState_readyToStartActivities is in theformat of (1, stateVectorLength)
+                        # currentState_readyToStartActivities is in the format of (1, stateVectorLength)
                         currentState_readyToStartActivitiesVertical = currentState_readyToStartActivities.reshape(
                             stateVectorLength, 1)
                         currentState_readyToStartActivitiesMatrix = np.matmul(
@@ -498,7 +495,7 @@ def runSimulation(runSimulation_input):
                     priorityValues = outputNeuralNetworkModel[0]
 
                 elif policyType == "neuralNetworkModel" and neuralNetworkType == "2dimensional convnet":
-                    # Disabled by me: currentState_readyToStartActivities = currentState_readyToStartActivities.reshape(-1, stateVectorLength)
+                    # Formerly: currentState_readyToStartActivities = currentState_readyToStartActivities.reshape(-1, stateVectorLength)
                     # Reshape the currentState_readyToStartActivitiesMatrix so that it fits into input shape of the neural network
                     currentState_readyToStartActivitiesMatrix = currentState_readyToStartActivitiesMatrix.reshape(
                         [-1, stateVectorLength, stateVectorLength, 1])
@@ -509,7 +506,7 @@ def runSimulation(runSimulation_input):
                     currentState_readyToStartActivities = currentState_readyToStartActivities.reshape(-1, stateVectorLength)
 
                     # Reshape the currentState_futureResourceUtilisation so that it fits into input shape of the convolutional neural network
-                    # rows: number of rows, columns: timeHorizon
+                    # rows: number of resources, columns: timeHorizon
                     currentState_futureResourceUtilisation = currentState_futureResourceUtilisation.reshape(
                         [-1, numberOfResources, timeHorizon, 1])
 
@@ -525,7 +522,7 @@ def runSimulation(runSimulation_input):
                         [-1, stateVectorLength, stateVectorLength, 1])
 
                     # Reshape the currentState_futureResourceUtilisation so that it fits into input shape of the convolutional neural network
-                    # rows: number of rows, columns: timeHorizon
+                    # rows: number of resources, columns: timeHorizon
                     currentState_futureResourceUtilisation = currentState_futureResourceUtilisation.reshape([-1, numberOfResources, timeHorizon, 1])
                     outputNeuralNetworkModel = decisionTool.predict({"input_futureResourceUtilisationMatrix": currentState_futureResourceUtilisation, "input_currentState": currentState_readyToStartActivitiesMatrix})
                     priorityValues = outputNeuralNetworkModel[0]
@@ -603,10 +600,6 @@ def runSimulation(runSimulation_input):
 
                     currentStateActionPair.state = currentState_readyToStartActivities
                     currentStateActionPair.action = currentAction
-                    #currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
-
-                    #print("len(currentStateActionPair.futureResourceUtilisationMatrix) is number of rows:" + str(len(currentStateActionPair.futureResourceUtilisationMatrix)))
-                    #print("len(currentStateActionPair.futureResourceUtilisationMatrix[0]) is number of columns:" + str(len(currentStateActionPair.futureResourceUtilisationMatrix[0])))
 
                     currentStateActionPairsOfRun.append(currentStateActionPair)
                     # currentStateActionPossibilityPairsOfRun.append(currentStateActionPossibilityPair)
@@ -615,7 +608,6 @@ def runSimulation(runSimulation_input):
                     currentStateActionPair = stateActionPair()
                     currentStateActionPair.state = currentState_readyToStartActivitiesMatrix
                     currentStateActionPair.action = currentAction
-                    #currentStateActionPair.futureResourceUtilisationMatrix = currentState_futureResourceUtilisation
 
                     currentStateActionPairsOfRun.append(currentStateActionPair)
 
