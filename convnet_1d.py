@@ -49,7 +49,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)
 
     convnet = conv_1d(convnet, nb_filter=16, filter_size=3, strides=1, padding='valid', activation='relu')
-    convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
+    convnet = max_pool_1d(convnet, kernel_size=2, strides=2, padding='valid')
 
     convnet = flatten(convnet)
 
@@ -81,7 +81,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
 
     convnet = conv_1d(convnet, nb_filter=32, filter_size=3, strides=1, padding='valid', activation='relu')
-    convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
+    convnet = max_pool_1d(convnet, kernel_size=2, strides=2, padding='valid')
 
     convnet = flatten(convnet)
 
@@ -110,10 +110,10 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     convnet = tflearn.embedding(convnet, input_dim=input_size, output_dim=2)
 
     convnet = conv_1d(convnet, nb_filter=16, filter_size=3, strides=1, padding='valid', activation='relu')
-    convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
+    convnet = max_pool_1d(convnet, kernel_size=2, strides=2, padding='valid')
 
     convnet = conv_1d(convnet, nb_filter=32, filter_size=3, strides=1, padding='valid', activation='relu')
-    convnet = max_pool_1d(convnet, kernel_size=2, strides=1, padding='valid')
+    convnet = max_pool_1d(convnet, kernel_size=2, strides=2, padding='valid')
 
     convnet = flatten(convnet)
 
