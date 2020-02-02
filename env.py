@@ -501,6 +501,7 @@ def runSimulation(runSimulation_input):
                         [-1, stateVectorLength, stateVectorLength, 1])
                     outputNeuralNetworkModel = decisionTool.predict(currentState_readyToStartActivitiesMatrix)
                     priorityValues = outputNeuralNetworkModel[0]
+                    print("priorityValues: " + str(priorityValues))
 
                 elif policyType == "neuralNetworkModel" and neuralNetworkType == "1dimensional combined convnet":
                     currentState_readyToStartActivities = currentState_readyToStartActivities.reshape(-1, stateVectorLength)

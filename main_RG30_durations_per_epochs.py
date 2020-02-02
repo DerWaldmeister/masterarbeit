@@ -36,11 +36,11 @@ rescaleFactorTime = 0.1
 timeHorizon = 10
 
 # random generation parameters
-numberOfSimulationRunsToGenerateData =2000
+numberOfSimulationRunsToGenerateData = 2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "1dimensional convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "2dimensional convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimensional convnet futureResourceUtilisation will not be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -50,10 +50,10 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 2000 #walk entire samples
+numberOfEpochs = 4000 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.00001
+learningRate = 0.0001
 
 # test the model on test set
 testModelOnTestSet = False
@@ -231,9 +231,12 @@ for i in range(numberOfFilesTrain):
 
     # saving validation set states, actions and futureResourceUtilisationMatrices
     for currentStateActionPair in runSimulation_outputs[i].stateActionPairsOfBestRun:
+        #print("currentStateActionPair.state: " + currentStateActionPair.state)
+        #print("currentStateActionPair.action" + currentStateActionPair.action)
         states.append(currentStateActionPair.state)
         actions.append(currentStateActionPair.action)
         futureResourceUtilisationMatrices.append(currentStateActionPair.futureResourceUtilisationMatrix)
+
 
 
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATION ACTIVITY SEQUENCES  ####
@@ -302,7 +305,7 @@ if neuralNetworkType == "1dimensional convnet":
 
 
     # runId for simulation run
-    runId = "1d_config_2a_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_config_1MSE_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
@@ -473,7 +476,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
 
-    runId = "1d_combined_config_5a_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_combined_config_5b_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
