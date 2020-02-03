@@ -40,7 +40,7 @@ numberOfSimulationRunsToGenerateData = 2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "1dimensional combined convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimensional convnet futureResourceUtilisation will not be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -50,10 +50,10 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 4000 #walk entire samples
-epochsTrainingInterval = 100
+numberOfEpochs = 300 #walk entire samples
+epochsTrainingInterval = 50
 # learning rate
-learningRate = 0.0005
+learningRate = 0.005
 
 # test the model on test set
 testModelOnTestSet = False
@@ -305,7 +305,7 @@ if neuralNetworkType == "1dimensional convnet":
 
 
     # runId for simulation run
-    runId = "1d_config_1_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_config_simple_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0

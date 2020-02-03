@@ -185,9 +185,12 @@ sumTotalDurationRandomTrainRecord = []
 #NEW
 minDurationPerActivitySequenceTrainRecord = []
 minDurationPerActivitySequenceValidateRecord = []
+minDurationPerActivitySequenceTestRecord = []
 meanDurationPerActivitySequenceTrainRecord = []
 meanDurationPerActivitySequenceValidateRecord = []
+meanDurationPerActivitySequenceTestRecord = []
 percentageImprovementMinToMeanValidateRecord = []
+percentageImprovementMinToMeanTestRecord = []
 
 '''
 #--------------------------------------------------------------RANDOM-----------------------------------------------------------------------------
@@ -244,7 +247,7 @@ for i in range(numberOfFilesTrain):
 #correspondence best states and actions pairs --> len(states) = len(actions)
 #print('state',states)
 #print('actions:',actions)
-
+'''
 ####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH VALIDATION ACTIVITY SEQUENCES  ####
 print('######  RANDOM DECISION ON VALIDATE ACTIVITY SEQUENCES  ######')
 runSimulation_inputs = []
@@ -289,15 +292,71 @@ for i in range(numberOfFilesValidate):
     # Calculate percentage improvement for each activitySequence
     percentageImprovementMinToMeanValidateRecord.append([indexFilesValidate[i], round(100*(1 - (activitySequences[indexFilesValidate[i]].totalDurationMin/activitySequences[indexFilesValidate[i]].totalDurationMean)),4)])
 
-sumPercentageImprovement = 0
+sumPercentageImprovementValidate = 0
 #Calculate mean percentage improvement over all activitySequences
 for i in range(numberOfFilesValidate):
-    sumPercentageImprovement = sumPercentageImprovement + percentageImprovementMinToMeanValidateRecord[i][1]
+    sumPercentageImprovementValidate = sumPercentageImprovementValidate + percentageImprovementMinToMeanValidateRecord[i][1]
 
-meanPercentageImprovement = round(sumPercentageImprovement/numberOfFilesValidate, 3)
+meanPercentageImprovementValidate = round(sumPercentageImprovementValidate/numberOfFilesValidate, 3)
+'''
 
+####  CREATE BENCHMARK WITH RANDOM DECISIONS ALSO WITH TEST ACTIVITY SEQUENCES  ####
+print('######  RANDOM DECISION ON TEST ACTIVITY SEQUENCES  ######')
+runSimulation_inputs = []
+for i in range(numberOfFilesTest):
+    currentRunSimulation_input = runSimulation_input()
+    currentRunSimulation_input.activitySequence = activitySequences[indexFilesTest[i]]
+    currentRunSimulation_input.numberOfSimulationRuns = numberOfSimulationRunsToGenerateData
+    currentRunSimulation_input.timeDistribution = timeDistribution
+    currentRunSimulation_input.purpose = "generateData"
+    currentRunSimulation_input.randomDecisionProbability = 1
+    currentRunSimulation_input.policyType = None
+    currentRunSimulation_input.neuralNetworkType = neuralNetworkType
+    currentRunSimulation_input.decisionTool = None
+    currentRunSimulation_input.numberOfResources = numberOfResources
+    currentRunSimulation_input.numberOfActivitiesInStateVector = numberOfActivitiesInStateVector
+    currentRunSimulation_input.stateVectorLength = stateVectorLength
+    currentRunSimulation_input.decisions_indexActivity = decisions_indexActivity
+    currentRunSimulation_input.rescaleFactorTime = rescaleFactorTime
+    currentRunSimulation_input.numberOfActivities = numberOfActivities
+    currentRunSimulation_input.timeHorizon = timeHorizon
+    currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
+
+    runSimulation_inputs.append(currentRunSimulation_input)
+
+pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
+
+runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
+# assign simulation results to activity sequences
+
+for i in range(numberOfFilesTest):
+    activitySequences[indexFilesTest[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
+    activitySequences[indexFilesTest[i]].totalDurationStandardDeviation = runSimulation_outputs[i].totalDurationStDev
+    activitySequences[indexFilesTest[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
+    activitySequences[indexFilesTest[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
+    activitySequences[indexFilesTest[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
+    activitySequences[indexFilesTest[i]].trivialDecisionPercentageMean = runSimulation_outputs[i].trivialDecisionPercentageMean
+
+    # List min and mean values for each activitySequence
+    minDurationPerActivitySequenceTestRecord.append(
+        [indexFilesTest[i], activitySequences[indexFilesTest[i]].totalDurationMin])
+    meanDurationPerActivitySequenceTestRecord.append([indexFilesTest[i], activitySequences[indexFilesTest[i]].totalDurationMean])
+    # Calculate percentage improvement for each activitySequence
+    percentageImprovementMinToMeanTestRecord.append([indexFilesTest[i], round(100*(1 - (activitySequences[indexFilesTest[i]].totalDurationMin/activitySequences[indexFilesTest[i]].totalDurationMean)),4)])
+
+sumPercentageImprovementTest = 0
+#Calculate mean percentage improvement over all activitySequences
+for i in range(numberOfFilesTest):
+    sumPercentageImprovementTest = sumPercentageImprovementTest + percentageImprovementMinToMeanTestRecord[i][1]
+
+meanPercentageImprovementTest = round(sumPercentageImprovementTest/numberOfFilesTest, 3)
 
 print("minDurationPerActivitySequenceValidateRecord: " + str(minDurationPerActivitySequenceValidateRecord))
 print("meanDurationPerActivitySequenceValidateRecord " + str(meanDurationPerActivitySequenceValidateRecord))
 print("percentageImprovementMinToMeanValidateRecord " + str(percentageImprovementMinToMeanValidateRecord))
-print("meanPercentageImprovement " + str(meanPercentageImprovement))
+print("meanPercentageImprovementValidate " + str(meanPercentageImprovementValidate))
+
+print("minDurationPerActivitySequenceTestRecord: " + str(minDurationPerActivitySequenceTestRecord))
+print("meanDurationPerActivitySequenceTestRecord " + str(meanDurationPerActivitySequenceTestRecord))
+print("percentageImprovementMinToMeanTestRecord " + str(percentageImprovementMinToMeanTestRecord))
+print("meanPercentageImprovementTest " + str(meanPercentageImprovementTest))
