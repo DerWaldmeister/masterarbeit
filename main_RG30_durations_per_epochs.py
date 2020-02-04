@@ -50,8 +50,8 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 500 #walk entire samples
-epochsTrainingInterval = 50
+numberOfEpochs = 100 #walk entire samples
+epochsTrainingInterval = 10
 # learning rate
 learningRate = 0.000005
 

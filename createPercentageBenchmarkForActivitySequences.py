@@ -351,10 +351,12 @@ for i in range(numberOfFilesTest):
 
 meanPercentageImprovementTest = round(sumPercentageImprovementTest/numberOfFilesTest, 3)
 
+'''
 print("minDurationPerActivitySequenceValidateRecord: " + str(minDurationPerActivitySequenceValidateRecord))
 print("meanDurationPerActivitySequenceValidateRecord " + str(meanDurationPerActivitySequenceValidateRecord))
 print("percentageImprovementMinToMeanValidateRecord " + str(percentageImprovementMinToMeanValidateRecord))
 print("meanPercentageImprovementValidate " + str(meanPercentageImprovementValidate))
+'''
 
 print("minDurationPerActivitySequenceTestRecord: " + str(minDurationPerActivitySequenceTestRecord))
 print("meanDurationPerActivitySequenceTestRecord " + str(meanDurationPerActivitySequenceTestRecord))
