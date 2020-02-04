@@ -50,10 +50,10 @@ if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == 
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 300 #walk entire samples
+numberOfEpochs = 500 #walk entire samples
 epochsTrainingInterval = 50
 # learning rate
-learningRate = 0.005
+learningRate = 0.000005
 
 # test the model on test set
 testModelOnTestSet = False
@@ -359,6 +359,8 @@ if neuralNetworkType == "1dimensional convnet":
         sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
             [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
 
+        print("[epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]: " + str([epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]))
+
         # load model
         neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
 
@@ -436,6 +438,9 @@ elif neuralNetworkType == "2dimensional convnet":
         # append number of trained epochs and the duration for this number of epochs to Records list
         sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
             [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+        print("[epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]: " + str(
+            [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]))
 
         # load model
         neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
@@ -533,6 +538,9 @@ elif neuralNetworkType == "1dimensional combined convnet":
         sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
             [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
 
+        print("[epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]: " + str(
+            [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]))
+
         # load model
         neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
 
@@ -624,6 +632,9 @@ elif neuralNetworkType == "2dimensional combined convnet":
         # append number of trained epochs and the duration for this number of epochs to Records list
         sumTotalDurationsPerEpochsWithNeuralNetworkModelValidateRecords.append(
             [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate])
+
+        print("[epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]: " + str(
+            [epochsCounter, sumTotalDurationWithNeuralNetworkModelValidate]))
 
         # load model
         neuralNetworkModel.load('./savedDNN/model' + modelId + '.tfl')
