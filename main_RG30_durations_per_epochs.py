@@ -53,7 +53,7 @@ neuralNetworkModelAlreadyExists = False
 numberOfEpochs = 3000 #walk entire samples
 epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.001
+learningRate = 0.0001
 
 # test the model on test set
 testModelOnTestSet = False
