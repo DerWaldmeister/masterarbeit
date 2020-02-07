@@ -5,7 +5,7 @@ from tflearn.layers.estimator import regression
 from datetime import datetime
 
 #CONFIGURATION simple
-'''
+
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -29,8 +29,6 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-'''
-
 
 
 #CONFIGURATION 1
@@ -122,7 +120,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 #CONFIGURATION 2b
-
+'''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -148,11 +146,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-
-
-
-
-
+'''
 
 #CONFIGURATION 3
 '''
