@@ -40,23 +40,23 @@ numberOfSimulationRunsToGenerateData = 2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "1dimensional convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional combined convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimensional convnet futureResourceUtilisation will not be used
 useFutureResourceUtilisation = False
-if neuralNetworkType == "1dimensional convnet" or neuralNetworkType == "2dimensional combined convnet":
+if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
     useFutureResourceUtilisation = True
 
 # train parameter
 generateNewTrainTestValidateSets = False
 importExistingNeuralNetworkModel = False
 neuralNetworkModelAlreadyExists = False
-numberOfEpochs = 500 #walk entire samples
-epochsTrainingInterval = 50
+numberOfEpochs = 4000 #walk entire samples
+epochsTrainingInterval = 100
 # learning rate
-learningRate = 0.001
+learningRate = 0.00005
 
 # test the model on test set
-testModelOnTestSet = False
+testModelOnTestSet = True
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -305,7 +305,7 @@ if neuralNetworkType == "1dimensional convnet":
 
 
     # runId for simulation run
-    runId = "1d_config_simple_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_config_5_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
@@ -386,7 +386,7 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    runId = "2d_config_10_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "2d_config_9_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
@@ -664,17 +664,29 @@ if testModelOnTestSet:
         currentRunSimulation_input.timeHorizon = timeHorizon
         currentRunSimulation_input.useFutureResourceUtilisation = useFutureResourceUtilisation
 
-        currentRunSimulation_output = runSimulation(currentRunSimulation_input)
+        runSimulation_inputs.append(currentRunSimulation_input)
 
-        activitySequences[indexFilesTest[i]].totalDurationMean = currentRunSimulation_output.totalDurationMean
+    pool = mp.Pool(processes=numberOfCpuProcessesToGenerateData)
+
+    runSimulation_outputs = pool.map(runSimulation, runSimulation_inputs)
+
+    # calculates total duration for test files
+    for i in range(numberOfFilesTest):
+        activitySequences[indexFilesTest[i]].totalDurationMean = runSimulation_outputs[i].totalDurationMean
+        activitySequences[indexFilesTest[i]].totalDurationStandardDeviation = runSimulation_outputs[
+            i].totalDurationStDev
+        activitySequences[indexFilesTest[i]].totalDurationMin = runSimulation_outputs[i].totalDurationMin
+        activitySequences[indexFilesTest[i]].totalDurationMax = runSimulation_outputs[i].totalDurationMax
+        activitySequences[indexFilesTest[i]].luckFactorMean = runSimulation_outputs[i].luckFactorMean
+        activitySequences[indexFilesTest[i]].trivialDecisionPercentageMean = runSimulation_outputs[
+            i].trivialDecisionPercentageMean
         print("activitySequences[indexFilesTest[i]].totalDurationWithMean: " + str(
             activitySequences[indexFilesTest[i]].totalDurationMean))
 
 
-    # calculates total duration for test files
-    for i in range(numberOfFilesTest):
-        sumTotalDurationRandomTest += activitySequences[
-            indexFilesTest[i]].totalDurationMean
+
+
+
 
 
 #-----------------------------------------------------------------NeuralNet------------------------------------------------------------------------------
