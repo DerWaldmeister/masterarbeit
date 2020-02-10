@@ -67,7 +67,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
 
 # CONFIGURATION 5b  1Dcombined_temporal
-
+'''
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                           learningRate,
                                                                           rowsFutureResourceUtilisationMatrix,
@@ -125,10 +125,10 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     model = tflearn.DNN(finalNet, tensorboard_dir=logdir, tensorboard_verbose=0)
 
     return model
-
+'''
 
 # CONFIGURATION 5c  1Dcombined_resource
-'''
+
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                           learningRate,
                                                                           rowsFutureResourceUtilisationMatrix,
@@ -188,7 +188,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
     return model
 
-'''
+
 
 ##################### ARCHIV ################
 
