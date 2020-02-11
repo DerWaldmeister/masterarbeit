@@ -7,8 +7,8 @@ from datetime import datetime
 
 
 
-#CONFIGURATION9a
-'''
+#CONFIGURATION9a    2Dcombined_rectangular
+
 def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix
                                                                               ):
@@ -64,9 +64,9 @@ def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     model = tflearn.DNN(finalNet, tensorboard_dir=logdir)
 
     return model
-'''
 
-#CONFIGURATION9b
+
+#CONFIGURATION9b  2Dcombined_temporal
 '''
 def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix
@@ -126,8 +126,8 @@ def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 '''
 
 
-#CONFIGURATION9c
-
+#CONFIGURATION9c    2Dcombined_resource
+'''
 def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix
                                                                               ):
@@ -186,4 +186,4 @@ def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
     return model
 
-
+'''

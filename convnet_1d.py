@@ -33,7 +33,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 #CONFIGURATION 2  1D_configuration2_convlay1_fc1
-'''
+
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -59,7 +59,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-'''
+
 
 
 #CONFIGURATION 1  1D_configuration3_convlay1_fc1
@@ -152,7 +152,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
 
 #CONFIGURATION 5    1D_configuration6_convlay3_fc2
-
+'''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -187,7 +187,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-
+'''
 
 
 ###### Archiv ###########
