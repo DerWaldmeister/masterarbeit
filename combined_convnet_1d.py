@@ -7,7 +7,7 @@ from tflearn.layers.merge_ops import merge, merge_outputs
 from datetime import datetime
 
 # CONFIGURATION 5a  1Dcombined_rectangular
-
+'''
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate,
                                                                               rowsFutureResourceUtilisationMatrix,
@@ -63,7 +63,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     model = tflearn.DNN(finalNet, tensorboard_dir=logdir, tensorboard_verbose=0)
 
     return model
-
+'''
 
 
 # CONFIGURATION 5b  1Dcombined_temporal
@@ -128,7 +128,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 '''
 
 # CONFIGURATION 5c  1Dcombined_resource
-'''
+
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                           learningRate,
                                                                           rowsFutureResourceUtilisationMatrix,
@@ -187,7 +187,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     model = tflearn.DNN(finalNet, tensorboard_dir=logdir, tensorboard_verbose=0)
 
     return model
-'''
+
 
 
 ##################### ARCHIV ################

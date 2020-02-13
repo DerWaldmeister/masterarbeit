@@ -178,7 +178,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 #CONFIGURATION 6
-'''
+
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -208,7 +208,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     model = tflearn.DNN(convnet, tensorboard_dir=logdir)
 
     return model
-'''
+
 
 #CONFIGURATION 7
 '''
@@ -277,7 +277,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 #CONFIGURATION 9
-
+'''
 def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -311,7 +311,7 @@ def create2dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     return model
     
-
+'''
 
 
 #CONFIGURATION 10

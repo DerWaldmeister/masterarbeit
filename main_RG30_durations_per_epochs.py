@@ -40,7 +40,7 @@ numberOfSimulationRunsToGenerateData = 2000
 numberOfSimulationRunsToTestPolicy = 1
 
 # neural network type
-neuralNetworkType = "2dimensional combined convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
+neuralNetworkType = "1dimensional combined convnet" # 1dimensional convnet, 2dimensional convnet, 1dimensional combined convnet, 2dimensional combined convnet
 # for 1dimensional convnet and 2dimensional convnet futureResourceUtilisation will not be used
 useFutureResourceUtilisation = False
 if neuralNetworkType == "1dimensional combined convnet" or neuralNetworkType == "2dimensional combined convnet":
@@ -56,7 +56,7 @@ epochsTrainingInterval = 100
 learningRate = 0.00005
 
 # test the model on test set
-testModelOnTestSet = True
+testModelOnTestSet = False
 
 # paths
 relativePath = os.path.dirname(__file__)
@@ -386,7 +386,7 @@ elif neuralNetworkType == "2dimensional convnet":
     else:
         neuralNetworkModel = create2dConvNetNeuralNetworkModel(len(states[0]), len(actions[0]), learningRate)
 
-    runId = "2d_config_9_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "2d_config_6_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
@@ -481,7 +481,7 @@ elif neuralNetworkType == "1dimensional combined convnet":
                 futureResourceUtilisationMatrices[0]), len(futureResourceUtilisationMatrices[0][0]))
 
 
-    runId = "1d_combined_config_5a_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
+    runId = "1d_combined_config_5c_lr" + str(learningRate) + "_epochs" + str(numberOfEpochs)
     # model id for saving the model uniquely
     modelId = datetime.now().strftime('%Y%m%d-%H%M%S')
     epochsCounter = 0
