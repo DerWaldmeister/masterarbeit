@@ -190,7 +190,7 @@ sumTotalDurationWithShortestProcessingTest = 0
 sumTotalDurationWithShortestSumDurationTest = 0
 
 
-#--------------------------------------------------------------RANDOM-----------------------------------------------------------------------------
+#--------------------------------------------------------------RANDOM----------------------------------------------------------------------------
 ####  GENERATE TRAINING DATA USING RANDOM DECISIONS (WITHOUT USING pool.map) ####
 print('######  RANDOM DECISION ON TRAIN ACTIVITY SEQUENCES  ######')
 runSimulation_inputs = []
