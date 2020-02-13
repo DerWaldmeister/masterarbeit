@@ -4,8 +4,8 @@ from tflearn.layers.core import input_data, dropout, fully_connected, flatten
 from tflearn.layers.estimator import regression
 from datetime import datetime
 
-#CONFIGURATION simple  1D_configuration1_convlay1_fc0
-'''
+#1D_conf1_convlay1_fc0  (fromerly: CONFIGURATION simple)
+''' 
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
     # Specify the log directory
@@ -32,7 +32,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
 '''
 
-#CONFIGURATION 2  1D_configuration2_convlay1_fc1
+#1D_conf2_convlay1_fc1  (formerly: CONFIGURATION 2 )
 
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
@@ -62,7 +62,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
 
 
-#CONFIGURATION 1  1D_configuration3_convlay1_fc1
+#1D_conf3_convlay1_fc1  (foremerly: CONFIGURATION 1 )
 '''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
@@ -92,7 +92,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     '''
 
 
-#CONFIGURATION 2a  1D_configuration4_convlay1_fc1
+#1D_configuration4_convlay1_fc1  (formerly: CONFIGURATION 2a )
 '''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
@@ -121,7 +121,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
     return model
 '''
 
-#CONFIGURATION 2b   1D_configuration5_convlay1_fc1
+#1D_conf5_convlay1_fc1  (formerly: CONFIGURATION 2b)
 '''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
@@ -151,7 +151,7 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 
-#CONFIGURATION 5    1D_configuration6_convlay3_fc2
+# 1D_conf6_convlay3_fc2  (formerly: CONFIGURATION 5)
 '''
 def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 
@@ -190,7 +190,15 @@ def create1dConvNetNeuralNetworkModel(input_size, output_size, learningRate):
 '''
 
 
-###### Archiv ###########
+
+
+
+
+
+
+
+
+################### Archiv - Configurations #####################
 
 #CONFIGURATION 3
 '''

@@ -6,7 +6,7 @@ from tflearn.layers.estimator import regression
 from tflearn.layers.merge_ops import merge, merge_outputs
 from datetime import datetime
 
-# CONFIGURATION 5a  1Dcombined_rectangular
+#1Dcombined_rectangular   (formerly:  CONFIGURATION 5a )
 '''
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate,
@@ -66,7 +66,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 '''
 
 
-# CONFIGURATION 5b  1Dcombined_temporal
+#1Dcombined_temporal  (formerly: CONFIGURATION 5b)
 '''
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                           learningRate,
@@ -127,7 +127,7 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     return model
 '''
 
-# CONFIGURATION 5c  1Dcombined_resource
+#1Dcombined_resource  (formerly: CONFIGURATION 5c )
 
 def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                           learningRate,
@@ -190,7 +190,12 @@ def createCombined1dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 
 
 
-##################### ARCHIV ################
+
+
+
+
+
+################### Archiv - Configurations #####################
 
 #CONFIGURATION2a
 '''

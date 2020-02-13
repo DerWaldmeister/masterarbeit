@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 
-#CONFIGURATION9a    2Dcombined_rectangular
+#2Dcombined_rectangular    (formerly: CONFIGURATION9a  )
 
 def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix
@@ -66,7 +66,7 @@ def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
     return model
 
 
-#CONFIGURATION9b  2Dcombined_temporal
+#2Dcombined_temporal  (formerly:  CONFIGURATION9b)
 '''
 def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix
@@ -126,7 +126,7 @@ def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_
 '''
 
 
-#CONFIGURATION9c    2Dcombined_resource
+#2Dcombined_resource   (formerly: CONFIGURATION9c )
 '''
 def createCombined2dConvNetNeuralNetworkModelForFutureResourceUtilisation(input_size_states, output_size_actions,
                                                                               learningRate, rowsFutureResourceUtilisationMatrix, columnsFutureResourceUtilisationMatrix
